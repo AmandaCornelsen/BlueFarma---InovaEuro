@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'screens/Login/selecao_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,6 +14,7 @@ class MyApp extends StatelessWidget {
       title: 'InovaEuro',
       theme: ThemeData(primarySwatch: Colors.blue),
       debugShowCheckedModeBanner: false,
+      home: SelecaoScreen()
     );
 }
 }
