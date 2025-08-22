@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'login_screen.dart'; // Certifique-se de importar sua tela de login
 
 class SelecaoScreen extends StatefulWidget {
   const SelecaoScreen({super.key});
@@ -34,9 +35,17 @@ class _SelecaoScreenState extends State<SelecaoScreen> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 12),
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginScreen()),
+                        );
+                      },
                       child: const Text('Executivo'),
                     ),
                     const SizedBox(width: 16),
@@ -47,9 +56,17 @@ class _SelecaoScreenState extends State<SelecaoScreen> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 12),
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginScreen()),
+                        );
+                      },
                       child: const Text(
                         'Empreendedor',
                         style: TextStyle(color: Colors.black),
@@ -75,7 +92,7 @@ class _SelecaoScreenState extends State<SelecaoScreen> {
                         decoration: TextDecoration.underline,
                       ),
                     ),
-                    TextSpan(text: ' and '),
+                    const TextSpan(text: ' and '),
                     TextSpan(
                       text: 'Privacy Policy',
                       style: const TextStyle(
@@ -84,7 +101,7 @@ class _SelecaoScreenState extends State<SelecaoScreen> {
                         decoration: TextDecoration.underline,
                       ),
                     ),
-                    TextSpan(text: ' by BlueFarma'),
+                    const TextSpan(text: ' by BlueFarma'),
                   ],
                 ),
                 textAlign: TextAlign.center,
