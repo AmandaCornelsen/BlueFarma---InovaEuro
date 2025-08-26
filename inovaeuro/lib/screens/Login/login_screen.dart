@@ -9,6 +9,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   void dispose() {
@@ -24,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
-              const SizedBox(height: 80),
+              const SizedBox(height: 50),
               //Botao voltar
               Align(
                 alignment: Alignment.centerLeft,
@@ -63,6 +64,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
               ),
+              TextField(
+                controller: passwordController,
+                keyboardType: TextInputType.visiblePassword,
+                obscureText: true,
+                decoration: InputDecoration(
+                  hintText: 'Password',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+              ),
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
@@ -77,6 +91,25 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(12)),
                   ),
                   child: const Text('Continue'),
+                ),
+              ),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            // builder: (context) => const LoginScreen()),
+                        ); 
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Register'),
                 ),
               ),
               const SizedBox(height: 16),
@@ -96,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () {},
                   icon: Image.asset(
-                    'assets/images/google_logo.png', // você precisa colocar o logo na pasta assets
+                    'assets/images/google_logo.png', 
                     height: 24,
                   ),
                   label: const Text('Continue with Google'),
