@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'screens/Login/selecao_screen.dart';
-import 'screens/Login/login_screen.dart';
+import 'package:inovaeuro/routes.dart';
+import 'package:inovaeuro/screens/splash/splashScreen.dart';
+import 'screens/login/login_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +16,8 @@ class MyApp extends StatelessWidget {
       title: 'InovaEuro',
       theme: ThemeData(primarySwatch: Colors.blue),
       debugShowCheckedModeBanner: false,
-      home: SelecaoScreen()
+      initialRoute: Routes.splash,
+      onGenerateRoute: Routes.generateRoute,
     );
-}
+  }
 }

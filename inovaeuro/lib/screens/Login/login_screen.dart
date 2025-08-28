@@ -93,23 +93,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: const Text('Continue'),
                 ),
               ),
+              const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            // builder: (context) => const LoginScreen()),
-                        ); 
+                    // Aqui você pode adicionar a lógica de login
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('Register'),
+                  child: const Text('Registrar'),
                 ),
               ),
               const SizedBox(height: 16),
