@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:inovaeuro/routes.dart';
+import 'package:inovaeuro/database_help.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -71,9 +73,43 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Aqui você pode adicionar a lógica de login
-                  },
+                  onPressed: () async {
+                    final email = emailController.text.trim();
+                    final password = passwordController.text.trim();
+
+                        if (email.isEmpty || password.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Preencha todos os campos')),
+                        );
+                        return;
+                        }
+
+                        try {
+                         final user = await DatabaseHelper.instance.getUser(email, password);
+
+                         if (user == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Email ou senha inválidos')),
+                        );
+                        } else {
+                        final role = user['role']; // deve ser "Executivo" ou "Empreendedor"
+
+                        if (role == "Executivo") {
+                        Navigator.pushReplacementNamed(context, Routes.executivo);
+                        } else if (role == "Empreendedor") {
+                         Navigator.pushReplacementNamed(context, Routes.empreendedor);
+                        } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                         const SnackBar(content: Text('Tipo de usuário desconhecido')),
+                       );
+                      }
+                    }
+                  } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Erro ao fazer login: $e')),
+                  );
+                }
+              },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(vertical: 14),

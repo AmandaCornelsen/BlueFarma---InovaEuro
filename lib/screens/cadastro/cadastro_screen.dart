@@ -61,9 +61,8 @@ class _CadastroScreenState extends State<CadastroScreen> {
         title: const Text('Cadastro InovaEuro'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pushReplacementNamed(context, Routes.login)),
         ),
-      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),

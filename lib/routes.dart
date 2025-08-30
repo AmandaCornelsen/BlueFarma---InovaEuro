@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:inovaeuro/screens/Login/login_screen.dart';
 import 'package:inovaeuro/screens/cadastro/cadastro_screen.dart';
+import 'package:inovaeuro/screens/empreendedor/home_empreendedor.dart';
+import 'package:inovaeuro/screens/executivo/home_executivo.dart';
 import 'package:inovaeuro/screens/splash/splashScreen.dart';
 
 class Routes {
@@ -21,9 +23,9 @@ static Route<dynamic> generateRoute(RouteSettings settings) {
     case cadastro:
     return MaterialPageRoute(builder: (_) => CadastroScreen());
     case empreendedor:
-    //return MaterialPageRoute(builder: (_) => EmpreendedorScreen());
+    return MaterialPageRoute(builder: (_) => EmpreendedorScreen());
     case executivo:
-    //return MaterialPageRoute(builder: (_) => ExecutivoScreen());
+    return MaterialPageRoute(builder: (_) => ExecutivoScreen());
 
     default:
     return MaterialPageRoute(builder: (_) =>

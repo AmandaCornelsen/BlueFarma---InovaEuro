@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class HomeExecutivo extends StatefulWidget {
-  const HomeExecutivo({super.key});
+class ExecutivoScreen extends StatefulWidget {
+  const ExecutivoScreen({super.key});
 
   @override
-  State<HomeExecutivo> createState() => _HomeExecutivoState();
+  State<ExecutivoScreen> createState() => _ExecutivoScreenState();
 }
 
-class _HomeExecutivoState extends State<HomeExecutivo> {
+class _ExecutivoScreenState extends State<ExecutivoScreen> {
   int totalIdeas = 12;
   int approvedIdeas = 7;
   int pendingIdeas = 5;
