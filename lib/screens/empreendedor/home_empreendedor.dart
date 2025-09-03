@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:inovaeuro/screens/empreendedor/projeto_detalhe.dart';
+import 'package:inovaeuro/screens/empreendedor/light_empreendedor.dart';
+import 'package:inovaeuro/screens/empreendedor/chat_empreendedor.dart';
+import 'package:inovaeuro/screens/empreendedor/bonus_empreendedor.dart';
+import 'package:inovaeuro/screens/empreendedor/perfil_empreendedor.dart';
 
 class EmpreendedorScreen extends StatefulWidget {
   const EmpreendedorScreen({super.key});
@@ -12,36 +15,195 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
   int points = 0;
   int _selectedIndex = 0;
 
+  List<Map<String, dynamic>> projetos = [
+    {
+      'title': 'Projeto 1',
+      'subtitle': 'Carbono Verde',
+      'imageUrl': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=60',
+      'description': 'Redução de carbono na indústria farmacêutica.',
+      'statusPercent': 0.7,
+      'status': 'Em andamento',
+    },
+    {
+      'title': 'Projeto 2',
+      'subtitle': 'Medicina alternativa',
+      'imageUrl': null,
+      'description': 'Pesquisa sobre tratamentos naturais.',
+      'statusPercent': 0.2,
+      'status': 'A começar',
+    },
+  ];
+
   @override
   void initState() {
     super.initState();
-    _loadUserPoints();
   }
 
-  Future<void> _loadUserPoints() async {
-    // Aqui você pode buscar os pontos do usuário no banco
-    setState(() {
-      points = 10; // exemplo temporário
-    });
-  }
 
   void _onNavItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      // Aqui você pode tratar a navegação para outras telas se quiser.
-      // Exemplo:
-      // if (index == 0) { Navigator.pushNamed(context, Routes.home); }
-      // else if (index == 1) { ... }
     });
   }
 
   void _onAddPressed() {
-    // Navegar para a tela de ideias (exemplo: 'ideias')
-    Navigator.pushNamed(context, '/ideias');
+    setState(() {
+      _selectedIndex = 1;
+    });
+  }
+
+  void _removerProjeto(int idx) {
+    setState(() {
+      projetos.removeAt(idx);
+    });
+  }
+
+  void _editarProjeto(int idx) {
+    setState(() {
+      projetos[idx]['title'] = projetos[idx]['title'] + ' (editado)';
+    });
+  }
+
+  void _mostrarDetalhes(Map<String, dynamic> projeto) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(projeto['title']),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (projeto['imageUrl'] != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(projeto['imageUrl'], height: 120, fit: BoxFit.cover),
+              ),
+            SizedBox(height: 12),
+            Text(projeto['description']),
+            SizedBox(height: 12),
+            Text('Status: ${projeto['status']}'),
+            LinearProgressIndicator(value: projeto['statusPercent']),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Fechar'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    Widget currentBody;
+    switch (_selectedIndex) {
+      case 0:
+        currentBody = Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Projetos em andamento',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: projetos.isEmpty
+                    ? Center(child: Text('Sem projetos ainda'))
+                    : ListView.separated(
+                        itemCount: projetos.length,
+                        separatorBuilder: (_, __) => SizedBox(height: 12),
+                        itemBuilder: (context, idx) {
+                          final projeto = projetos[idx];
+                          return Card(
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            elevation: 4,
+                            child: ListTile(
+                              leading: projeto['imageUrl'] != null
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.network(projeto['imageUrl'], width: 48, height: 48, fit: BoxFit.cover),
+                                    )
+                                  : CircleAvatar(
+                                      backgroundColor: Colors.purple.shade100,
+                                      child: Text(projeto['title'][0], style: TextStyle(color: Colors.white)),
+                                    ),
+                              title: Text(projeto['title'], style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              subtitle: Text(projeto['subtitle'], style: TextStyle(fontSize: 14, color: Colors.grey)),
+                              trailing: PopupMenuButton<String>(
+                                itemBuilder: (context) => [
+                                  PopupMenuItem(value: 'edit', child: Text('Editar')),
+                                  PopupMenuItem(value: 'delete', child: Text('Excluir')),
+                                ],
+                                onSelected: (value) async {
+                                  if (value == 'edit') {
+                                    _editarProjeto(idx);
+                                  } else if (value == 'delete') {
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: Text('Excluir projeto'),
+                                        content: Text('Tem certeza que deseja excluir este projeto?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.of(context).pop(false),
+                                            child: Text('Cancelar'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () => Navigator.of(context).pop(true),
+                                            child: Text('Excluir'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    if (confirm == true) {
+                                      _removerProjeto(idx);
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Projeto excluído!')),
+                                      );
+                                    }
+                                  }
+                                },
+                              ),
+                              onTap: () => _mostrarDetalhes(projeto),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+        );
+        break;
+      case 1:
+        currentBody = LightEmpreendedor(
+        ideias: [], 
+        onSubmit: (novaIdeia) {
+    
+        },
+        ); 
+        break;
+      case 2:
+        currentBody = ChatEmpreendedor(); 
+        break;
+      case 3:
+        currentBody = BonusEmpreendedor(
+          enviados: projetos.length,
+          aprovados: projetos.where((p) => p['status'] == 'Concluído').length,
+          pontos: projetos.length * 50, // ajuste sua lógica de pontos
+        ); 
+        break;
+      case 4:
+        currentBody = PerfilEmpreendedor(); 
+        break;
+      default:
+        currentBody = Container();
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home Empreendedor'),
@@ -55,54 +217,17 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
                 Text(points.toString()),
               ],
             ),
-          )
+          ),
         ],
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Suas ideias',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView(
-                  children: [
-                    _buildIdeaCard(
-                      title: 'Projeto 1',
-                      subtitle: 'Carbono Verde',
-                      imageUrl:
-                          'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=60',
-                      description:
-                          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildIdeaCard(
-                      title: 'Projeto 2',
-                      subtitle: 'Medicina alternativa',
-                      imageUrl: null, // Sem imagem neste exemplo
-                      description: '',
-                      showAddButton: true,
-                      onAddPressed: _onAddPressed,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _onAddPressed,
-        backgroundColor: Colors.purple,
-        child: const Icon(Icons.add, size: 32),
-      ),
+      body: SafeArea(child: currentBody),
+      floatingActionButton: _selectedIndex == 0
+          ? FloatingActionButton(
+              onPressed: _onAddPressed,
+              backgroundColor: Colors.purple,
+              child: const Icon(Icons.add, size: 32),
+            )
+          : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
@@ -113,113 +238,26 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
         showSelectedLabels: false,
         showUnselectedLabels: false,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
-          BottomNavigationBarItem(icon: Icon(Icons.grid_view_outlined), label: 'Opção 3'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Perfil'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.lightbulb_outline),
+            label: 'Ideias',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            label: 'Chat',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.laptop_chromebook_outlined),
+            label: 'Bonificacao',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            label: 'Perfil',
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildIdeaCard({
-    required String title,
-    required String subtitle,
-    String? imageUrl,
-    required String description,
-    bool showAddButton = false,
-    VoidCallback? onAddPressed,
-  }) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: Colors.purple.shade100,
-                  child: Text(title[0], style: const TextStyle(color: Colors.white)),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(title,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      Text(subtitle,
-                          style: const TextStyle(fontSize: 14, color: Colors.grey)),
-                    ],
-                  ),
-                ),
-                if (showAddButton)
-                  ElevatedButton(
-                    onPressed: onAddPressed,
-                    style: ElevatedButton.styleFrom(
-                      shape: const CircleBorder(),
-                      padding: const EdgeInsets.all(12),
-                    ),
-                    child: const Icon(Icons.add),
-                  )
-                else
-                  PopupMenuButton<String>(
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(value: 'edit', child: Text('Editar')),
-                      const PopupMenuItem(value: 'delete', child: Text('Excluir')),
-                    ],
-                    onSelected: (value) {
-                      // lógica para editar ou excluir
-                    },
-                  ),
-              ],
-            ),
-            if (imageUrl != null) ...[
-              const SizedBox(height: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(imageUrl, fit: BoxFit.cover),
-              ),
-            ],
-            if (description.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              const Text('Subtexto', style: TextStyle(color: Colors.grey)),
-              const SizedBox(height: 4),
-              Text(description),
-              const SizedBox(height: 12),
-              Align(
-                alignment: Alignment.centerRight,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => ProjetoDetailScreen(
-                    title: title,
-                    imageUrl: imageUrl ?? '',
-                    statusPercent: 0.0, // Ajuste conforme o progresso real do projeto
-                    investimento: 'R\$0 - R\$1200', // Ajuste conforme dados reais
-                    ),
-                  ),
-                );
-              },
-
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    backgroundColor: Colors.purple,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  ),
-                  child: const Text('Saber mais'),
-                ),
-              ),
-            ]
-          ],
-        ),
       ),
     );
   }
