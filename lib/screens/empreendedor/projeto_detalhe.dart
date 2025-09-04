@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ProjetoDetailScreen extends StatelessWidget {
   final String title;
   final String imageUrl;
-  final double statusPercent; // Exemplo: 0.0 a 1.0
+  final double statusPercent; 
   final String investimento;
 
   const ProjetoDetailScreen({

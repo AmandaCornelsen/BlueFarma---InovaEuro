@@ -3,6 +3,7 @@ import 'package:inovaeuro/screens/empreendedor/light_empreendedor.dart';
 import 'package:inovaeuro/screens/empreendedor/chat_empreendedor.dart';
 import 'package:inovaeuro/screens/empreendedor/bonus_empreendedor.dart';
 import 'package:inovaeuro/screens/empreendedor/perfil_empreendedor.dart';
+import 'store_empreendedor.dart';
 
 class EmpreendedorScreen extends StatefulWidget {
   const EmpreendedorScreen({super.key});
@@ -12,33 +13,7 @@ class EmpreendedorScreen extends StatefulWidget {
 }
 
 class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
-  int points = 0;
   int _selectedIndex = 0;
-
-  List<Map<String, dynamic>> projetos = [
-    {
-      'title': 'Projeto 1',
-      'subtitle': 'Carbono Verde',
-      'imageUrl': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=60',
-      'description': 'Redução de carbono na indústria farmacêutica.',
-      'statusPercent': 0.7,
-      'status': 'Em andamento',
-    },
-    {
-      'title': 'Projeto 2',
-      'subtitle': 'Medicina alternativa',
-      'imageUrl': null,
-      'description': 'Pesquisa sobre tratamentos naturais.',
-      'statusPercent': 0.2,
-      'status': 'A começar',
-    },
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
 
   void _onNavItemTapped(int index) {
     setState(() {
@@ -48,54 +23,94 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
 
   void _onAddPressed() {
     setState(() {
-      _selectedIndex = 1;
+      _selectedIndex = 1; 
     });
   }
 
   void _removerProjeto(int idx) {
     setState(() {
-      projetos.removeAt(idx);
+      EmpreendedorStore.instance.projetos.removeAt(idx);
     });
   }
 
-  void _editarProjeto(int idx) {
-    setState(() {
-      projetos[idx]['title'] = projetos[idx]['title'] + ' (editado)';
-    });
+  void _editarProjeto(int idx) async {
+    final projeto = EmpreendedorStore.instance.projetos[idx];
+    final TextEditingController nomeController = TextEditingController(text: projeto['nome']);
+    final TextEditingController descricaoController = TextEditingController(text: projeto['descricao']);
+
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Editar Projeto'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: nomeController, decoration: const InputDecoration(labelText: 'Nome')),
+            const SizedBox(height: 12),
+            TextField(controller: descricaoController, decoration: const InputDecoration(labelText: 'Descrição')),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                projeto['nome'] = nomeController.text;
+                projeto['descricao'] = descricaoController.text;
+              });
+              Navigator.pop(context);
+            },
+            child: const Text('Salvar'),
+          )
+        ],
+      ),
+    );
   }
 
   void _mostrarDetalhes(Map<String, dynamic> projeto) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(projeto['title']),
+        title: Text(projeto['nome']),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (projeto['imageUrl'] != null)
+            if (projeto.containsKey('imagemUrl') && projeto['imagemUrl'] != null)
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.network(projeto['imageUrl'], height: 120, fit: BoxFit.cover),
+                child: Image.network(projeto['imagemUrl'], height: 120, fit: BoxFit.cover),
               ),
-            SizedBox(height: 12),
-            Text(projeto['description']),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
+            Text('Descrição: ${projeto['descricao']}'),
+            const SizedBox(height: 12),
             Text('Status: ${projeto['status']}'),
-            LinearProgressIndicator(value: projeto['statusPercent']),
+            if (projeto.containsKey('tempoEstimado'))
+              Text('Tempo estimado: ${projeto['tempoEstimado']} dias'),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Fechar'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Fechar')),
         ],
       ),
     );
   }
 
+  String getStatus(double percent) {
+    if (percent <= 0.33) return 'A começar';
+    if (percent <= 0.66) return 'Em andamento';
+    return 'Finalizado';
+  }
+
+  Color getStatusColor(double percent) {
+    if (percent <= 0.33) return Colors.orange;
+    if (percent <= 0.66) return Colors.blue;
+    return Colors.green;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final projetosAprovados = EmpreendedorStore.instance.getProjetosAprovados();
+
     Widget currentBody;
     switch (_selectedIndex) {
       case 0:
@@ -105,66 +120,79 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
             children: [
               const Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  'Projetos em andamento',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
+                child: Text('Projetos Aprovados',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: projetos.isEmpty
-                    ? Center(child: Text('Sem projetos ainda'))
+                child: projetosAprovados.isEmpty
+                    ? const Center(child: Text('Nenhum projeto aprovado ainda'))
                     : ListView.separated(
-                        itemCount: projetos.length,
-                        separatorBuilder: (_, __) => SizedBox(height: 12),
+                        itemCount: projetosAprovados.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
                         itemBuilder: (context, idx) {
-                          final projeto = projetos[idx];
+                          final projeto = projetosAprovados[idx];
+                          final percent = projeto['statusPercent'] ?? 0.0;
+                          final status = getStatus(percent);
+                          final statusColor = getStatusColor(percent);
+
                           return Card(
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             elevation: 4,
                             child: ListTile(
-                              leading: projeto['imageUrl'] != null
+                              leading: projeto.containsKey('imagemUrl') && projeto['imagemUrl'] != null
                                   ? ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
-                                      child: Image.network(projeto['imageUrl'], width: 48, height: 48, fit: BoxFit.cover),
+                                      child: Image.network(
+                                        projeto['imagemUrl'],
+                                        width: 48,
+                                        height: 48,
+                                        fit: BoxFit.cover,
+                                      ),
                                     )
                                   : CircleAvatar(
                                       backgroundColor: Colors.purple.shade100,
-                                      child: Text(projeto['title'][0], style: TextStyle(color: Colors.white)),
+                                      child: Text(projeto['nome'][0], style: const TextStyle(color: Colors.white)),
                                     ),
-                              title: Text(projeto['title'], style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                              subtitle: Text(projeto['subtitle'], style: TextStyle(fontSize: 14, color: Colors.grey)),
+                              title: Text(projeto['nome'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(projeto['descricao'], maxLines: 2, overflow: TextOverflow.ellipsis),
+                                  const SizedBox(height: 4),
+                                  LinearProgressIndicator(
+                                    value: percent,
+                                    minHeight: 8,
+                                    color: statusColor,
+                                    backgroundColor: Colors.grey[300],
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(status, style: TextStyle(color: statusColor, fontWeight: FontWeight.bold)),
+                                ],
+                              ),
                               trailing: PopupMenuButton<String>(
                                 itemBuilder: (context) => [
-                                  PopupMenuItem(value: 'edit', child: Text('Editar')),
-                                  PopupMenuItem(value: 'delete', child: Text('Excluir')),
+                                  const PopupMenuItem(value: 'edit', child: Text('Editar')),
+                                  const PopupMenuItem(value: 'delete', child: Text('Excluir')),
                                 ],
                                 onSelected: (value) async {
                                   if (value == 'edit') {
-                                    _editarProjeto(idx);
+                                    _editarProjeto(EmpreendedorStore.instance.projetos.indexOf(projeto));
                                   } else if (value == 'delete') {
                                     final confirm = await showDialog<bool>(
                                       context: context,
                                       builder: (context) => AlertDialog(
-                                        title: Text('Excluir projeto'),
-                                        content: Text('Tem certeza que deseja excluir este projeto?'),
+                                        title: const Text('Excluir projeto'),
+                                        content: const Text('Tem certeza que deseja excluir este projeto?'),
                                         actions: [
-                                          TextButton(
-                                            onPressed: () => Navigator.of(context).pop(false),
-                                            child: Text('Cancelar'),
-                                          ),
-                                          TextButton(
-                                            onPressed: () => Navigator.of(context).pop(true),
-                                            child: Text('Excluir'),
-                                          ),
+                                          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancelar')),
+                                          TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Excluir')),
                                         ],
                                       ),
                                     );
                                     if (confirm == true) {
-                                      _removerProjeto(idx);
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('Projeto excluído!')),
-                                      );
+                                      _removerProjeto(EmpreendedorStore.instance.projetos.indexOf(projeto));
+                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Projeto excluído!')));
                                     }
                                   }
                                 },
@@ -180,25 +208,16 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
         );
         break;
       case 1:
-        currentBody = LightEmpreendedor(
-        ideias: [], 
-        onSubmit: (novaIdeia) {
-    
-        },
-        ); 
+        currentBody = const LightEmpreendedor();
         break;
       case 2:
-        currentBody = ChatEmpreendedor(); 
+        currentBody = const ChatEmpreendedor();
         break;
       case 3:
-        currentBody = BonusEmpreendedor(
-          enviados: projetos.length,
-          aprovados: projetos.where((p) => p['status'] == 'Concluído').length,
-          pontos: projetos.length * 50, // ajuste sua lógica de pontos
-        ); 
+        currentBody = const BonusEmpreendedor();
         break;
       case 4:
-        currentBody = PerfilEmpreendedor(); 
+        currentBody = const PerfilEmpreendedor();
         break;
       default:
         currentBody = Container();
@@ -207,18 +226,7 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home Empreendedor'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                const Icon(Icons.star, color: Colors.yellow),
-                const SizedBox(width: 4),
-                Text(points.toString()),
-              ],
-            ),
-          ),
-        ],
+        actions: const [BonusStar()],
       ),
       body: SafeArea(child: currentBody),
       floatingActionButton: _selectedIndex == 0
@@ -238,25 +246,11 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
         showSelectedLabels: false,
         showUnselectedLabels: false,
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.lightbulb_outline),
-            label: 'Ideias',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            label: 'Chat',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.laptop_chromebook_outlined),
-            label: 'Bonificacao',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Perfil',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.lightbulb_outline), label: 'Ideias'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
+          BottomNavigationBarItem(icon: Icon(Icons.laptop_chromebook_outlined), label: 'Bonificação'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Perfil'),
         ],
       ),
     );
