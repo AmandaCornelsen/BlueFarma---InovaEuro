@@ -1,26 +1,54 @@
 import 'package:flutter/material.dart';
-import 'store_empreendedor.dart';
+import 'package:inovaeuro/database_help.dart';
 
-class BonusEmpreendedor extends StatelessWidget {
-  const BonusEmpreendedor({super.key});
+class BonusEmpreendedor extends StatefulWidget {
+  final int userId; 
+
+  const BonusEmpreendedor({super.key, required this.userId});
+
+  @override
+  State<BonusEmpreendedor> createState() => _BonusEmpreendedorState();
+}
+
+class _BonusEmpreendedorState extends State<BonusEmpreendedor> {
+  int pontos = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPontos();
+  }
+
+  Future<void> _loadPontos() async {
+    final db = DatabaseHelper.instance;
+    final dbClient = await db.database;
+
+    final res = await dbClient.query(
+      'users',
+      where: 'id = ?',
+      whereArgs: [widget.userId],
+      limit: 1,
+    );
+
+    if (res.isNotEmpty) {
+      setState(() {
+        pontos = res.first['points'] as int;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final pontos = EmpreendedorStore.instance.pontosGlobais;
-
     List<Map<String, dynamic>> beneficios = [
-      {'titulo': 'Desconto em cursos', 'pts': 100},
-      {'titulo': 'Mentoria exclusiva', 'pts': 200},
-      {'titulo': 'Networking VIP', 'pts': 300},
-      {'titulo': 'Voucher em tecnologia', 'pts': 400},
-      {'titulo': 'Viagem de inovação', 'pts': 500},
+      {'titulo': 'Desconto em cursos', 'pts': 200},
+      {'titulo': 'Mentoria exclusiva', 'pts': 400},
+      {'titulo': 'Networking VIP', 'pts': 600},
+      {'titulo': 'Voucher em tecnologia', 'pts': 800},
+      {'titulo': 'Viagem de inovação', 'pts': 2000},
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dashboard de Bonificação'),
-        actions: [BonusStar()],
-      ),
+      appBar: AppBar(title: const Text('Dashboard de Bonificação')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -35,7 +63,9 @@ class BonusEmpreendedor extends StatelessWidget {
                     const Text('Resumo',
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 12),
-                    Text('Pontos acumulados: $pontos', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text('Pontos acumulados: $pontos',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
                     const SizedBox(height: 12),
                     LinearProgressIndicator(
                       value: (pontos / 500).clamp(0.0, 1.0),
@@ -65,7 +95,10 @@ class BonusEmpreendedor extends StatelessWidget {
                       title: Text(b['titulo'] as String),
                       subtitle: Text('${b['pts']} pontos'),
                       trailing: desbloqueado
-                          ? const Text("Liberado!", style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold))
+                          ? const Text("Liberado!",
+                              style: TextStyle(
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold))
                           : null,
                     ),
                   );
@@ -74,34 +107,6 @@ class BonusEmpreendedor extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// Widget global da estrela
-class BonusStar extends StatefulWidget {
-  const BonusStar({super.key});
-
-  @override
-  State<BonusStar> createState() => _BonusStarState();
-}
-
-class _BonusStarState extends State<BonusStar> {
-  @override
-  Widget build(BuildContext context) {
-    final pontos = EmpreendedorStore.instance.pontosGlobais;
-    return Padding(
-      padding: const EdgeInsets.only(right: 16),
-      child: Row(
-        children: [
-          const Icon(Icons.star, color: Colors.amber),
-          const SizedBox(width: 4),
-          Text(
-            "$pontos",
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-        ],
       ),
     );
   }
