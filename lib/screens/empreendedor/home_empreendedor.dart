@@ -4,6 +4,7 @@ import 'light_empreendedor.dart';
 import 'bonus_empreendedor.dart';
 import 'chat_empreendedor.dart';
 import 'perfil_empreendedor.dart';
+import 'bonus_empreendedor.dart';
 
 class EmpreendedorScreen extends StatefulWidget {
   const EmpreendedorScreen({super.key});
@@ -33,7 +34,7 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
             'Dashboard inicial do empreendedor',
             style: TextStyle(fontSize: 20),
           ),
-        ); // Futuramente você pode adicionar gráficos ou resumo
+        ); 
         break;
       case 1:
         currentBody = const LightEmpreendedor();

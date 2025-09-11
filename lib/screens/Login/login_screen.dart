@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:inovaeuro/current_user.dart';
 import 'package:inovaeuro/routes.dart';
 import 'package:inovaeuro/database_help.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -97,8 +98,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           await prefs.setInt('logged_user_id', user['id']);
                           await prefs.setString('logged_user_email', user['email']);
                           await prefs.setString('logged_user_role', user['role']);
+                          CurrentUser.instance.id = user['id'];                                    CurrentUser.instance.email = user['email'];    
+                          CurrentUser.instance.role = user['role'];     
+                          CurrentUser.instance.points = user['points'] ?? 0;
 
-                          final role = user['role']; // deve ser "Executivo" ou "Empreendedor"
+                          final role = user['role']; 
 
                         if (role == "Executivo") {
                         Navigator.pushReplacementNamed(context, Routes.executivo);
