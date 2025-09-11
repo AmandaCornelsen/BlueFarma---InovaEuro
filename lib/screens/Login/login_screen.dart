@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:inovaeuro/routes.dart';
 import 'package:inovaeuro/database_help.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -92,7 +93,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SnackBar(content: Text('Email ou senha inválidos')),
                         );
                         } else {
-                        final role = user['role']; // deve ser "Executivo" ou "Empreendedor"
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setInt('logged_user_id', user['id']);
+                          await prefs.setString('logged_user_email', user['email']);
+                          await prefs.setString('logged_user_role', user['role']);
+
+                          final role = user['role']; // deve ser "Executivo" ou "Empreendedor"
 
                         if (role == "Executivo") {
                         Navigator.pushReplacementNamed(context, Routes.executivo);

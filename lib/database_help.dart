@@ -78,11 +78,11 @@ class DatabaseHelper {
   // ===== USERS =====
   Future<int> createUser(String email, String password, String role) async {
     final db = await database;
-    return await db.insert(
-      'users',
-      {'email': email, 'password': password, 'role': role},
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    return await db.insert('users', {
+      'email': email,
+      'password': password,
+      'role': role,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<Map<String, dynamic>?> getUser(String email, String password) async {
@@ -97,7 +97,10 @@ class DatabaseHelper {
 
   Future<void> addUserPoints(int userId, int points) async {
     final db = await database;
-    await db.rawUpdate('UPDATE users SET points = points + ? WHERE id = ?', [points, userId]);
+    await db.rawUpdate('UPDATE users SET points = points + ? WHERE id = ?', [
+      points,
+      userId,
+    ]);
   }
 
   // ===== IDEAS =====
@@ -147,7 +150,9 @@ class DatabaseHelper {
     final statuses = ['pending', 'approved', 'in_progress', 'completed'];
     for (var status in statuses) {
       final count = firstIntValue(
-        await db.rawQuery('SELECT COUNT(*) FROM ideas WHERE status = ?', [status]),
+        await db.rawQuery('SELECT COUNT(*) FROM ideas WHERE status = ?', [
+          status,
+        ]),
       );
       result[status] = count ?? 0;
     }
@@ -156,16 +161,17 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> getRecentIdeas(int limit) async {
     final db = await database;
-    return await db.query(
-      'ideas',
-      orderBy: 'created_at DESC',
-      limit: limit,
-    );
+    return await db.query('ideas', orderBy: 'created_at DESC', limit: limit);
   }
 
   Future<List<Map<String, dynamic>>> getIdeasByStatus(String status) async {
     final db = await database;
-    return await db.query('ideas', where: 'status = ?', whereArgs: [status], orderBy: 'created_at DESC');
+    return await db.query(
+      'ideas',
+      where: 'status = ?',
+      whereArgs: [status],
+      orderBy: 'created_at DESC',
+    );
   }
 
   Future<List<Map<String, dynamic>>> getExecutives() async {
@@ -174,7 +180,10 @@ class DatabaseHelper {
   }
 
   // ===== CHAT =====
-  Future<int> createOrGetConversation(int executiveId, int empreendedorId) async {
+  Future<int> createOrGetConversation(
+    int executiveId,
+    int empreendedorId,
+  ) async {
     final db = await database;
     final res = await db.query(
       'conversations',
@@ -183,15 +192,29 @@ class DatabaseHelper {
     );
     if (res.isNotEmpty) return res.first['id'] as int;
 
-    return await db.insert('conversations', {'executive_id': executiveId, 'empreendedor_id': empreendedorId});
+    return await db.insert('conversations', {
+      'executive_id': executiveId,
+      'empreendedor_id': empreendedorId,
+    });
   }
 
-  Future<List<Map<String, dynamic>>> listConversationsForUser(int userId, String role) async {
+  Future<List<Map<String, dynamic>>> listConversationsForUser(
+    int userId,
+    String role,
+  ) async {
     final db = await database;
     if (role == 'Executivo') {
-      return await db.query('conversations', where: 'executive_id = ?', whereArgs: [userId]);
+      return await db.query(
+        'conversations',
+        where: 'executive_id = ?',
+        whereArgs: [userId],
+      );
     } else {
-      return await db.query('conversations', where: 'empreendedor_id = ?', whereArgs: [userId]);
+      return await db.query(
+        'conversations',
+        where: 'empreendedor_id = ?',
+        whereArgs: [userId],
+      );
     }
   }
 
@@ -212,9 +235,31 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> getMessages(int conversationId) async {
     final db = await database;
-    return await db.query('chat_messages',
-        where: 'conversation_id = ?', whereArgs: [conversationId], orderBy: 'created_at ASC');
+    return await db.query(
+      'chat_messages',
+      where: 'conversation_id = ?',
+      whereArgs: [conversationId],
+      orderBy: 'created_at ASC',
+    );
   }
-  
+
   firstIntValue(List<Map<String, Object?>> list) {}
+
+  Future<int> updateUser({
+    required int id,
+    String? email,
+    String? password,
+    String? role,
+    int? points,
+  }) async {
+    final db = await database;
+
+    final Map<String, Object?> values = {};
+    if (email != null) values['email'] = email;
+    if (password != null) values['password'] = password;
+    if (role != null) values['role'] = role;
+    if (points != null) values['points'] = points;
+
+    return await db.update('users', values, where: 'id = ?', whereArgs: [id]);
+  }
 }
