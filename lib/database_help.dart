@@ -10,7 +10,17 @@ class DatabaseHelper {
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDB('inovaeuro.db');
+    // MIGRAÇÃO: Garante coluna nome na tabela users
+    await _migrarColunaNome(_database!);
     return _database!;
+  }
+
+  Future<void> _migrarColunaNome(Database db) async {
+    final columns = await db.rawQuery("PRAGMA table_info(users)");
+    final hasNome = columns.any((col) => col['name'] == 'nome');
+    if (!hasNome) {
+      await db.execute("ALTER TABLE users ADD COLUMN nome TEXT");
+    }
   }
 
   Future<Database> _initDB(String filePath) async {
@@ -23,6 +33,7 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT,
         email TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL,
         role TEXT NOT NULL,
@@ -30,6 +41,13 @@ class DatabaseHelper {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     ''');
+
+    // MIGRAÇÃO: Adiciona coluna nome se não existir
+    final columns = await db.rawQuery("PRAGMA table_info(users)");
+    final hasNome = columns.any((col) => col['name'] == 'nome');
+    if (!hasNome) {
+      await db.execute("ALTER TABLE users ADD COLUMN nome TEXT");
+    }
 
     await db.execute('''
       CREATE TABLE IF NOT EXISTS ideas (
@@ -76,12 +94,13 @@ class DatabaseHelper {
   }
 
   // ===== USERS =====
-  Future<int> createUser(String email, String password, String role) async {
+  Future<int> createUser(String email, String password, String role, String nome) async {
     final db = await database;
     return await db.insert('users', {
       'email': email,
       'password': password,
       'role': role,
+      'nome': nome,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
@@ -258,6 +277,7 @@ class DatabaseHelper {
     String? password,
     String? role,
     int? points,
+    String? nome,
   }) async {
     final db = await database;
 
@@ -266,6 +286,7 @@ class DatabaseHelper {
     if (password != null) values['password'] = password;
     if (role != null) values['role'] = role;
     if (points != null) values['points'] = points;
+    if (nome != null) values['nome'] = nome;
 
     return await db.update('users', values, where: 'id = ?', whereArgs: [id]);
   }

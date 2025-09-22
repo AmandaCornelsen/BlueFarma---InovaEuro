@@ -11,9 +11,32 @@ class PerfilEmpreendedor extends StatefulWidget {
 }
 
 class _PerfilEmpreendedorState extends State<PerfilEmpreendedor> {
-  String nome = 'Empreendedor';
-  String email = 'email@exemplo.com';
+  String nome = '';
+  String email = '';
   String senha = '';
+  int? userId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('logged_user_id');
+    if (userId != null) {
+      final db = DatabaseHelper.instance;
+      final dbClient = await db.database;
+      final res = await dbClient.query('users', where: 'id = ?', whereArgs: [userId], limit: 1);
+      if (res.isNotEmpty) {
+        setState(() {
+          nome = res.first['nome'] as String? ?? '';
+          email = res.first['email'] as String? ?? '';
+        });
+      }
+    }
+  }
 
   void _logout() {
     Navigator.pushReplacementNamed(context, Routes.login);
@@ -49,9 +72,6 @@ class _PerfilEmpreendedorState extends State<PerfilEmpreendedor> {
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: () async {
-                final prefs = await SharedPreferences.getInstance();
-                final userId = prefs.getInt('logged_user_id');
-
                 if (userId == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -60,21 +80,17 @@ class _PerfilEmpreendedorState extends State<PerfilEmpreendedor> {
                   );
                   return;
                 }
-
                 final dbHelper = DatabaseHelper.instance;
-
                 await dbHelper.updateUser(
-                  id: userId,
+                  id: userId!,
                   email: email,
-                  password: senha.isNotEmpty
-                      ? senha
-                      : null, 
+                  password: senha.isNotEmpty ? senha : null,
+                  nome: nome,
                 );
-
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Perfil atualizado!')),
                 );
-
+                final prefs = await SharedPreferences.getInstance();
                 await prefs.setString('logged_user_email', email);
               },
               child: const Text('Salvar'),

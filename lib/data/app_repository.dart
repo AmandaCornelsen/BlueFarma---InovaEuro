@@ -2,7 +2,16 @@ import 'package:inovaeuro/database_help.dart';
 
 import 'package:inovaeuro/current_user.dart';
 
+
+
+
 class AppRepository {
+  Future<List<Map<String, dynamic>>> ideiasAprovadasDoUsuario() async {
+    final userId = CurrentUser.instance.id;
+    if (userId == null) throw Exception("Usuário não logado");
+    final todas = await _db.getIdeasByStatus('approved');
+    return todas.where((p) => p['user_id'] == userId).toList();
+  }
   AppRepository._();
   static final instance = AppRepository._();
 
@@ -44,7 +53,8 @@ class AppRepository {
       categoria: categoria,
       duracaoDias: duracaoDias,
     );
-    await _db.addUserPoints(currentUserId!, 50); // bônus envio
+    // Empreendedor ganha 50 pontos imediatamente ao submeter
+    await _db.addUserPoints(currentUserId!, 50);
     CurrentUser.instance.points += 50;
     return id;
   }
@@ -54,10 +64,7 @@ class AppRepository {
     required int empreendedorId, required int executivoId,
   }) async {
     await _db.updateIdeaStatus(ideiaId, 'approved');
-    await _db.addUserPoints(empreendedorId, 150); // bônus aprovação
-    if (empreendedorId == CurrentUser.instance.id) {
-      CurrentUser.instance.points += 150;
-    }
+    // Não concede mais pontos na aprovação
   }
 
   Future<void> rejeitarIdeia(int ideiaId) async {

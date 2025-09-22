@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:inovaeuro/current_user.dart';
 import 'light_empreendedor.dart';
-import 'bonus_empreendedor.dart';
+import 'package:inovaeuro/data/app_repository.dart';
 import 'chat_empreendedor.dart';
 import 'perfil_empreendedor.dart';
 import 'bonus_empreendedor.dart';
@@ -17,11 +17,36 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
   final GlobalKey<LightEmpreendedorState> _lightEmpreendedorKey = GlobalKey<LightEmpreendedorState>();
 
   void _atualizarProjetos() {
-    if (_lightEmpreendedorKey.currentState != null) {
-      _lightEmpreendedorKey.currentState!.setState(() {});
-    }
+    setState(() {});
   }
   int _selectedIndex = 0;
+  void _abrirDetalhesProjeto(Map<String, dynamic> projeto) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(projeto['title'] ?? 'Projeto'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Descrição: ${projeto['description'] ?? ''}'),
+            const SizedBox(height: 8),
+            Text('Categoria: ${projeto['category'] ?? ''}'),
+            const SizedBox(height: 8),
+            Text('Tempo de conclusão: ${projeto['duration_days'] ?? ''} dias'),
+            const SizedBox(height: 8),
+            Text('Status: ${projeto['status'] ?? ''}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Fechar'),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _onNavItemTapped(int index) {
     setState(() => _selectedIndex = index);
@@ -36,11 +61,32 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
     Widget currentBody;
     switch (_selectedIndex) {
       case 0:
-        currentBody = const Center(
-          child: Text(
-            'Dashboard inicial do empreendedor',
-            style: TextStyle(fontSize: 20),
-          ),
+        currentBody = FutureBuilder<List<Map<String, dynamic>>>(
+          future: AppRepository.instance.ideiasAprovadasDoUsuario(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final projetos = snapshot.data ?? [];
+            if (projetos.isEmpty) {
+              return const Center(child: Text('Nenhum projeto aprovado ainda.'));
+            }
+            return ListView.builder(
+              itemCount: projetos.length,
+              itemBuilder: (context, index) {
+                final projeto = projetos[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: ListTile(
+                    title: Text(projeto['title'] ?? ''),
+                    subtitle: Text('Categoria: ${projeto['category'] ?? ''}'),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    onTap: () => _abrirDetalhesProjeto(projeto),
+                  ),
+                );
+              },
+            );
+          },
         );
         break;
       case 1:
@@ -53,7 +99,11 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
         currentBody = const ChatEmpreendedor();
         break;
       case 3:
-        currentBody = BonusEmpreendedor(userId: CurrentUser.instance.id!);
+        if (CurrentUser.instance.id == null) {
+          currentBody = const Center(child: CircularProgressIndicator());
+        } else {
+          currentBody = BonusEmpreendedor(userId: CurrentUser.instance.id!);
+        }
         break;
       case 4:
         currentBody = const PerfilEmpreendedor();

@@ -40,11 +40,11 @@ class _BonusEmpreendedorState extends State<BonusEmpreendedor> {
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> beneficios = [
-      {'titulo': 'Desconto em cursos', 'pts': 200},
-      {'titulo': 'Mentoria exclusiva', 'pts': 400},
-      {'titulo': 'Networking VIP', 'pts': 600},
-      {'titulo': 'Voucher em tecnologia', 'pts': 800},
-      {'titulo': 'Viagem de inovação', 'pts': 2000},
+      {'titulo': 'Desconto em cursos', 'pts': 400},
+      {'titulo': 'Mentoria exclusiva', 'pts': 600},
+      {'titulo': 'Networking VIP', 'pts': 800},
+      {'titulo': 'Voucher em tecnologia', 'pts': 1200},
+      {'titulo': 'Viagem de inovação', 'pts': 2500},
     ];
 
     return Scaffold(

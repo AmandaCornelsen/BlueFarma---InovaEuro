@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inovaeuro/database_help.dart';
+import 'package:inovaeuro/current_user.dart';
 import 'package:inovaeuro/routes.dart';
 
 class CadastroScreen extends StatefulWidget {
@@ -10,6 +11,7 @@ class CadastroScreen extends StatefulWidget {
 }
 
 class _CadastroScreenState extends State<CadastroScreen> {
+  final TextEditingController nomeController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController codigoExecutivoController = TextEditingController();
@@ -27,10 +29,11 @@ class _CadastroScreenState extends State<CadastroScreen> {
 
   // Função para cadastrar usuário no banco
   Future<void> _registerUser() async {
+    final nome = nomeController.text.trim();
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
-    if (email.isEmpty || password.isEmpty || selectedRole == null) {
+    if (nome.isEmpty || email.isEmpty || password.isEmpty || selectedRole == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Preencha todos os campos')),
       );
@@ -46,7 +49,17 @@ class _CadastroScreenState extends State<CadastroScreen> {
     }
 
     try {
-      await DatabaseHelper.instance.createUser(email, password, selectedRole!);
+      await DatabaseHelper.instance.createUser(email, password, selectedRole!, nome);
+      // Busca usuário recém-cadastrado para login automático
+      final user = await DatabaseHelper.instance.getUser(email, password);
+      if (user != null) {
+        // Inicializa CurrentUser
+        // ignore: use_build_context_synchronously
+        CurrentUser.instance.id = user['id'];
+        CurrentUser.instance.email = user['email'];
+        CurrentUser.instance.role = user['role'];
+        CurrentUser.instance.points = user['points'] ?? 0;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Usuário cadastrado com sucesso!')),
       );
@@ -86,6 +99,17 @@ class _CadastroScreenState extends State<CadastroScreen> {
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
+                TextField(
+                  controller: nomeController,
+                  decoration: InputDecoration(
+                    hintText: 'Nome de usuário',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                ),
+                const SizedBox(height: 12),
                 TextField(
                   controller: emailController,
                   keyboardType: TextInputType.emailAddress,
