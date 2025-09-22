@@ -1,0 +1,28 @@
+^C:\SRC\PROJETOFACUL\BLUEFARMA---INOVAEURO\INOVAEURO\BUILD\WINDOWS\X64\CMAKEFILES\527F0A949DA1408D127A9774BDE9C46F\FLUTTER_WINDOWS.DLL.RULE
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E env FLUTTER_ROOT=C:\src\flutter PROJECT_DIR=C:\src\projetofacul\BlueFarma---InovaEuro\inovaeuro FLUTTER_ROOT=C:\src\flutter FLUTTER_EPHEMERAL_DIR=C:\src\projetofacul\BlueFarma---InovaEuro\inovaeuro\windows\flutter\ephemeral PROJECT_DIR=C:\src\projetofacul\BlueFarma---InovaEuro\inovaeuro FLUTTER_TARGET=C:\src\projetofacul\BlueFarma---InovaEuro\inovaeuro\lib\main.dart DART_DEFINES=RkxVVFRFUl9WRVJTSU9OPTMuMzUuMQ==,RkxVVFRFUl9DSEFOTkVMPXN0YWJsZQ==,RkxVVFRFUl9HSVRfVVJMPWh0dHBzOi8vZ2l0aHViLmNvbS9mbHV0dGVyL2ZsdXR0ZXIuZ2l0,RkxVVFRFUl9GUkFNRVdPUktfUkVWSVNJT049MjBmODI3NDkzOQ==,RkxVVFRFUl9FTkdJTkVfUkVWSVNJT049MWU5YTgxMWJmOA==,RkxVVFRFUl9EQVJUX1ZFUlNJT049My45LjA= DART_OBFUSCATION=false TRACK_WIDGET_CREATION=true TREE_SHAKE_ICONS=false PACKAGE_CONFIG=C:\src\projetofacul\BlueFarma---InovaEuro\inovaeuro\.dart_tool\package_config.json C:/src/flutter/packages/flutter_tools/bin/tool_backend.bat windows-x64 Debug
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\SRC\PROJETOFACUL\BLUEFARMA---INOVAEURO\INOVAEURO\BUILD\WINDOWS\X64\CMAKEFILES\5E59AC3BBE1D11ED406459311005BC11\FLUTTER_ASSEMBLE.RULE
+setlocal
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\SRC\PROJETOFACUL\BLUEFARMA---INOVAEURO\INOVAEURO\WINDOWS\FLUTTER\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/src/projetofacul/BlueFarma---InovaEuro/inovaeuro/windows -BC:/src/projetofacul/BlueFarma---InovaEuro/inovaeuro/build/windows/x64 --check-stamp-file C:/src/projetofacul/BlueFarma---InovaEuro/inovaeuro/build/windows/x64/flutter/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

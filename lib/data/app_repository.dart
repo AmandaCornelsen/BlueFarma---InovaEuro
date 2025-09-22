@@ -1,31 +1,33 @@
 import 'package:inovaeuro/database_help.dart';
 
+import 'package:inovaeuro/current_user.dart';
+
 class AppRepository {
   AppRepository._();
   static final instance = AppRepository._();
 
   final _db = DatabaseHelper.instance;
 
-  Map<String, dynamic>? currentUser;
-
   // ===== LOGIN =====
   Future<bool> login({required String email, required String password}) async {
     final user = await _db.getUser(email, password);
     if (user != null) {
-      currentUser = user;
+      CurrentUser.instance.id = user['id'];
+      CurrentUser.instance.email = user['email'];
+      CurrentUser.instance.role = user['role'];
+      CurrentUser.instance.points = user['points'] ?? 0;
       return true;
     }
     return false;
   }
 
   void logout() {
-    currentUser = null;
+    CurrentUser.instance.reset();
   }
 
-  int? get currentUserId => currentUser?['id'];
-  String? get currentUserRole => currentUser?['role'];
-
-  int get currentUserPoints => currentUser?['points'] ?? 0;
+  int? get currentUserId => CurrentUser.instance.id;
+  String? get currentUserRole => CurrentUser.instance.role;
+  int get currentUserPoints => CurrentUser.instance.points;
 
   // ===== IDEIAS =====
   Future<int> criarIdeia({
@@ -43,8 +45,7 @@ class AppRepository {
       duracaoDias: duracaoDias,
     );
     await _db.addUserPoints(currentUserId!, 50); // bônus envio
-    // Atualiza pontos locais
-    currentUser!['points'] = currentUserPoints + 50;
+    CurrentUser.instance.points += 50;
     return id;
   }
 
@@ -54,6 +55,9 @@ class AppRepository {
   }) async {
     await _db.updateIdeaStatus(ideiaId, 'approved');
     await _db.addUserPoints(empreendedorId, 150); // bônus aprovação
+    if (empreendedorId == CurrentUser.instance.id) {
+      CurrentUser.instance.points += 150;
+    }
   }
 
   Future<void> rejeitarIdeia(int ideiaId) async {

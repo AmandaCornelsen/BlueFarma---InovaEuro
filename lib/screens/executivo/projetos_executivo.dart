@@ -34,15 +34,21 @@ class _ExecutivoProjetosState extends State<ExecutivoProjetos> {
   Future<void> _aprovar(int ideiaId, int autorId) async {
     await AppRepository.instance.aprovarIdeia(
       ideiaId: ideiaId,
-      executivoId: 0, // se quiser, pode pegar id do executivo logado
+      executivoId: 0, // pode substituir pelo id do executivo logado se desejar
       empreendedorId: autorId,
     );
     await _loadIdeias();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Projeto aprovado!')),
+    );
   }
 
   Future<void> _rejeitar(int ideiaId) async {
     await AppRepository.instance.rejeitarIdeia(ideiaId);
     await _loadIdeias();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Projeto rejeitado!')),
+    );
   }
 
   @override
@@ -68,9 +74,8 @@ class _ExecutivoProjetosState extends State<ExecutivoProjetos> {
               itemBuilder: (context, index) {
                 final item = ideiasPendentes[index];
                 final title = item['title'] ?? 'Sem título';
-                final author = item['authorName'] ?? 'Desconhecido';
+                final description = item['description'] ?? '';
                 final status = item['status'] ?? 'Pendente';
-
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -81,7 +86,17 @@ class _ExecutivoProjetosState extends State<ExecutivoProjetos> {
                       child: const Icon(Icons.lightbulb_outline, color: Colors.white),
                     ),
                     title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text('Autor: $author\nStatus: $status'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (description.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4.0),
+                            child: Text(description, style: const TextStyle(fontSize: 14)),
+                          ),
+                        Text('Status: $status'),
+                      ],
+                    ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [

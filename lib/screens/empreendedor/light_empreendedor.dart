@@ -29,35 +29,30 @@ class _LightEmpreendedorState extends State<LightEmpreendedor> {
   Future<void> _adicionarIdeia() async {
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
-
       await AppRepository.instance.criarIdeia(
         titulo: nome,
         descricao: descricao,
         categoria: setor == 'Outro' ? setorOutro : setor,
         duracaoDias: tempoEstimado ?? 0,
       );
-
-      CurrentUser.instance.addPoints(50);
-
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Projeto submetido com sucesso!')),
+      );
       _formKey.currentState?.reset();
-      setor = '';
-      setorOutro = '';
-
-      setState(() {});
+      setState(() {
+        setor = '';
+        setorOutro = '';
+      });
     }
   }
 
   Future<List<Map<String, dynamic>>> _getProjetos() async {
-    return await AppRepository.instance.ultimasIdeias(100); // busca últimas 100 ideias do usuário
+    final todas = await AppRepository.instance.ultimasIdeias(100);
+    final userId = CurrentUser.instance.id;
+    return todas.where((p) => p['user_id'] == userId).toList();
   }
 
-  Future<void> _aprovarProjeto(int ideiaId) async {
-    await AppRepository.instance.aprovarIdeia(
-      ideiaId: ideiaId,
-      empreendedorId: CurrentUser.instance.id!, executivoId: 0,
-    );
-    setState(() {});
-  }
+  // Removido botão de aprovação do empreendedor (não faz sentido para o próprio dono)
 
   @override
   Widget build(BuildContext context) {
@@ -174,16 +169,15 @@ class _LightEmpreendedorState extends State<LightEmpreendedor> {
             FutureBuilder<List<Map<String, dynamic>>>(
               future: _getProjetos(),
               builder: (context, snapshot) {
-                if (!snapshot.hasData)
+                if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
-                final projetos = snapshot.data!
-                    .where((p) => p['user_id'] == CurrentUser.instance.id)
-                    .toList();
-                if (projetos.isEmpty)
+                }
+                final projetos = snapshot.data!;
+                if (projetos.isEmpty) {
                   return const Center(
-                      child: Text('Nenhuma ideia submetida',
-                          style:
-                              TextStyle(fontSize: 16, color: Colors.grey)));
+                      child: Text('Nenhum projeto submetido',
+                          style: TextStyle(fontSize: 16, color: Colors.grey)));
+                }
                 return ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -204,14 +198,6 @@ class _LightEmpreendedorState extends State<LightEmpreendedor> {
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16)),
                         subtitle: Text('Status: ${item['status']}'),
-                        trailing: item['status'] == 'submetida'
-                            ? IconButton(
-                                icon: const Icon(Icons.check_circle,
-                                    color: Colors.green),
-                                onPressed: () => _aprovarProjeto(item['id']),
-                              )
-                            : const Icon(Icons.verified,
-                                color: Colors.blue, size: 28),
                       ),
                     );
                   },

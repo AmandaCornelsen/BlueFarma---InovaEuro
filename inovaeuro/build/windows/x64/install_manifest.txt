@@ -1,0 +1,13 @@
+C:/src/projetofacul/BlueFarma---InovaEuro/inovaeuro/build/windows/x64/runner/Debug/data/icudtl.dat
+C:/src/projetofacul/BlueFarma---InovaEuro/inovaeuro/build/windows/x64/runner/Debug/flutter_windows.dll
+C:/src/projetofacul/BlueFarma---InovaEuro/inovaeuro/build/windows/x64/runner/Debug/data/flutter_assets/AssetManifest.bin
+C:/src/projetofacul/BlueFarma---InovaEuro/inovaeuro/build/windows/x64/runner/Debug/data/flutter_assets/AssetManifest.json
+C:/src/projetofacul/BlueFarma---InovaEuro/inovaeuro/build/windows/x64/runner/Debug/data/flutter_assets/assets/images/facebook_logo.png
+C:/src/projetofacul/BlueFarma---InovaEuro/inovaeuro/build/windows/x64/runner/Debug/data/flutter_assets/assets/images/google_logo.png
+C:/src/projetofacul/BlueFarma---InovaEuro/inovaeuro/build/windows/x64/runner/Debug/data/flutter_assets/FontManifest.json
+C:/src/projetofacul/BlueFarma---InovaEuro/inovaeuro/build/windows/x64/runner/Debug/data/flutter_assets/fonts/MaterialIcons-Regular.otf
+C:/src/projetofacul/BlueFarma---InovaEuro/inovaeuro/build/windows/x64/runner/Debug/data/flutter_assets/kernel_blob.bin
+C:/src/projetofacul/BlueFarma---InovaEuro/inovaeuro/build/windows/x64/runner/Debug/data/flutter_assets/NativeAssetsManifest.json
+C:/src/projetofacul/BlueFarma---InovaEuro/inovaeuro/build/windows/x64/runner/Debug/data/flutter_assets/NOTICES.Z
+C:/src/projetofacul/BlueFarma---InovaEuro/inovaeuro/build/windows/x64/runner/Debug/data/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf
+C:/src/projetofacul/BlueFarma---InovaEuro/inovaeuro/build/windows/x64/runner/Debug/data/flutter_assets/shaders/ink_sparkle.frag
