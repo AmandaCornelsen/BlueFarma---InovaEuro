@@ -130,7 +130,7 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
         );
         break;
       case 1:
-        currentBody = const ExecutivoProjetos();
+        currentBody = ExecutivoProjetos(onProjetoAprovadoOuRejeitado: _loadDashboard);
         break;
       case 2:
         currentBody = const ChatExecutivo();

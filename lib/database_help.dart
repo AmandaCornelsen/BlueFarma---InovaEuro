@@ -243,7 +243,14 @@ class DatabaseHelper {
     );
   }
 
-  firstIntValue(List<Map<String, Object?>> list) {}
+  int? firstIntValue(List<Map<String, Object?>> list) {
+    if (list.isEmpty) return null;
+    final value = list.first.values.first;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    return null;
+  }
 
   Future<int> updateUser({
     required int id,

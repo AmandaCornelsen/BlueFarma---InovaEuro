@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:inovaeuro/current_user.dart';
 import 'package:inovaeuro/data/app_repository.dart';
 
+
+typedef ProjetoCallback = void Function();
+
 class LightEmpreendedor extends StatefulWidget {
-  const LightEmpreendedor({super.key});
+  final ProjetoCallback? onProjetoAtualizado;
+  const LightEmpreendedor({super.key, this.onProjetoAtualizado});
 
   @override
-  State<LightEmpreendedor> createState() => _LightEmpreendedorState();
+  State<LightEmpreendedor> createState() => LightEmpreendedorState();
 }
 
-class _LightEmpreendedorState extends State<LightEmpreendedor> {
+class LightEmpreendedorState extends State<LightEmpreendedor> {
   final _formKey = GlobalKey<FormState>();
   String nome = '';
   String descricao = '';
@@ -43,6 +47,9 @@ class _LightEmpreendedorState extends State<LightEmpreendedor> {
         setor = '';
         setorOutro = '';
       });
+      if (widget.onProjetoAtualizado != null) {
+        widget.onProjetoAtualizado!();
+      }
     }
   }
 

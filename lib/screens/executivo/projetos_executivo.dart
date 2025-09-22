@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:inovaeuro/data/app_repository.dart';
 
+
+typedef ProjetoCallback = void Function();
+
 class ExecutivoProjetos extends StatefulWidget {
-  const ExecutivoProjetos({super.key});
+  final ProjetoCallback? onProjetoAprovadoOuRejeitado;
+  const ExecutivoProjetos({super.key, this.onProjetoAprovadoOuRejeitado});
 
   @override
   State<ExecutivoProjetos> createState() => _ExecutivoProjetosState();
@@ -21,7 +25,7 @@ class _ExecutivoProjetosState extends State<ExecutivoProjetos> {
     try {
       final list = await AppRepository.instance.ideiasPendentes();
       setState(() {
-        ideiasPendentes = list ?? [];
+        ideiasPendentes = list;
       });
     } catch (e) {
       setState(() {
@@ -38,6 +42,9 @@ class _ExecutivoProjetosState extends State<ExecutivoProjetos> {
       empreendedorId: autorId,
     );
     await _loadIdeias();
+    if (widget.onProjetoAprovadoOuRejeitado != null) {
+      widget.onProjetoAprovadoOuRejeitado!();
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Projeto aprovado!')),
     );
@@ -46,6 +53,9 @@ class _ExecutivoProjetosState extends State<ExecutivoProjetos> {
   Future<void> _rejeitar(int ideiaId) async {
     await AppRepository.instance.rejeitarIdeia(ideiaId);
     await _loadIdeias();
+    if (widget.onProjetoAprovadoOuRejeitado != null) {
+      widget.onProjetoAprovadoOuRejeitado!();
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Projeto rejeitado!')),
     );

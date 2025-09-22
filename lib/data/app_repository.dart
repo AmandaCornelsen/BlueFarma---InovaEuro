@@ -61,7 +61,7 @@ class AppRepository {
   }
 
   Future<void> rejeitarIdeia(int ideiaId) async {
-    await _db.updateIdeaStatus(ideiaId, 'pending'); // ou 'rejected' se preferir
+    await _db.updateIdeaStatus(ideiaId, 'rejected');
   }
 
   Future<void> setProgressoIdeia(int ideiaId, double progress) async {

@@ -14,6 +14,13 @@ class EmpreendedorScreen extends StatefulWidget {
 }
 
 class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
+  final GlobalKey<LightEmpreendedorState> _lightEmpreendedorKey = GlobalKey<LightEmpreendedorState>();
+
+  void _atualizarProjetos() {
+    if (_lightEmpreendedorKey.currentState != null) {
+      _lightEmpreendedorKey.currentState!.setState(() {});
+    }
+  }
   int _selectedIndex = 0;
 
   void _onNavItemTapped(int index) {
@@ -34,10 +41,13 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
             'Dashboard inicial do empreendedor',
             style: TextStyle(fontSize: 20),
           ),
-        ); 
+        );
         break;
       case 1:
-        currentBody = const LightEmpreendedor();
+        currentBody = LightEmpreendedor(
+          key: _lightEmpreendedorKey,
+          onProjetoAtualizado: _atualizarProjetos,
+        );
         break;
       case 2:
         currentBody = const ChatEmpreendedor();
