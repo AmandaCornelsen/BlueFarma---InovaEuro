@@ -11,9 +11,34 @@ class PerfilExecutivo extends StatefulWidget {
 }
 
 class _PerfilExecutivoState extends State<PerfilExecutivo> {
-  String nome = 'Executivo';
-  String email = 'email@exemplo.com';
-  String senha = '';
+  bool _senhaVisivel = false;
+  final TextEditingController nomeController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController senhaController = TextEditingController();
+  int? userId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('logged_user_id');
+    if (userId != null) {
+      final db = DatabaseHelper.instance;
+      final dbClient = await db.database;
+      final res = await dbClient.query('users', where: 'id = ?', whereArgs: [userId], limit: 1);
+      if (res.isNotEmpty) {
+        setState(() {
+          nomeController.text = res.first['nome'] as String? ?? '';
+          emailController.text = res.first['email'] as String? ?? '';
+          senhaController.text = res.first['password'] as String? ?? '';
+        });
+      }
+    }
+  }
 
   void _logout() {
     Navigator.pushReplacementNamed(context, Routes.login);
@@ -27,29 +52,36 @@ class _PerfilExecutivoState extends State<PerfilExecutivo> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Text('Perfil',
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(
+              'Perfil',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
             TextFormField(
-              initialValue: nome,
+              controller: nomeController,
               decoration: const InputDecoration(labelText: 'Nome'),
-              onChanged: (v) => nome = v,
             ),
             TextFormField(
-              initialValue: email,
+              controller: emailController,
               decoration: const InputDecoration(labelText: 'Email'),
-              onChanged: (v) => email = v,
             ),
             TextFormField(
-              decoration: const InputDecoration(labelText: 'Senha'),
-              obscureText: true,
-              onChanged: (v) => senha = v,
+              controller: senhaController,
+              decoration: InputDecoration(
+                labelText: 'Senha',
+                suffixIcon: IconButton(
+                  icon: Icon(_senhaVisivel ? Icons.visibility : Icons.visibility_off),
+                  onPressed: () {
+                    setState(() {
+                      _senhaVisivel = !_senhaVisivel;
+                    });
+                  },
+                ),
+              ),
+              obscureText: !_senhaVisivel,
             ),
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: () async {
-                final prefs = await SharedPreferences.getInstance();
-                final userId = prefs.getInt('logged_user_id');
-
                 if (userId == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -58,22 +90,18 @@ class _PerfilExecutivoState extends State<PerfilExecutivo> {
                   );
                   return;
                 }
-
                 final dbHelper = DatabaseHelper.instance;
-
                 await dbHelper.updateUser(
-                  id: userId,
-                  email: email,
-                  password: senha.isNotEmpty
-                      ? senha
-                      : null, 
+                  id: userId!,
+                  email: emailController.text,
+                  password: senhaController.text.isNotEmpty ? senhaController.text : null,
+                  nome: nomeController.text,
                 );
-
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Perfil atualizado!')),
                 );
-
-                await prefs.setString('logged_user_email', email);
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setString('logged_user_email', emailController.text);
               },
               child: const Text('Salvar'),
             ),

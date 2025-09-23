@@ -14,9 +14,15 @@ class EmpreendedorScreen extends StatefulWidget {
 }
 
 class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
+  final GlobalKey<_BonusStarState> _bonusStarKey = GlobalKey<_BonusStarState>();
   final GlobalKey<LightEmpreendedorState> _lightEmpreendedorKey = GlobalKey<LightEmpreendedorState>();
 
   void _atualizarProjetos() {
+    setState(() {});
+  }
+
+  // Novo: callback para atualizar pontos ao voltar da tela de submissão
+  void atualizarPontos() {
     setState(() {});
   }
   int _selectedIndex = 0;
@@ -92,7 +98,12 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
       case 1:
         currentBody = LightEmpreendedor(
           key: _lightEmpreendedorKey,
-          onProjetoAtualizado: _atualizarProjetos,
+          onProjetoAtualizado: () {
+            _atualizarProjetos();
+            atualizarPontos();
+            // Atualiza pontos na estrela
+            _bonusStarKey.currentState?.atualizarPontos();
+          },
         );
         break;
       case 2:
@@ -115,7 +126,7 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home Empreendedor'),
-        actions: const [BonusStar()],
+  actions: [BonusStar(key: _bonusStarKey)],
       ),
       body: SafeArea(child: currentBody),
       floatingActionButton: _selectedIndex == 0
@@ -150,12 +161,33 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
   }
 }
 
-class BonusStar extends StatelessWidget {
+class BonusStar extends StatefulWidget {
   const BonusStar({super.key});
 
   @override
+  State<BonusStar> createState() => _BonusStarState();
+}
+
+class _BonusStarState extends State<BonusStar> {
+  int pontos = CurrentUser.instance.points;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    setState(() {
+      pontos = CurrentUser.instance.points;
+    });
+  }
+
+  // Chame este método de fora para atualizar a estrela
+  void atualizarPontos() {
+    setState(() {
+      pontos = CurrentUser.instance.points;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final pontos = CurrentUser.instance.points;
     return Padding(
       padding: const EdgeInsets.only(right: 16),
       child: Row(

@@ -64,7 +64,12 @@ class AppRepository {
     required int empreendedorId, required int executivoId,
   }) async {
     await _db.updateIdeaStatus(ideiaId, 'approved');
-    // Não concede mais pontos na aprovação
+    // Bonificação: empreendedor ganha 150 pontos ao ter projeto aprovado
+    await _db.addUserPoints(empreendedorId, 150);
+    // Se o empreendedor aprovado for o usuário logado, atualiza pontos em memória
+    if (empreendedorId == CurrentUser.instance.id) {
+      CurrentUser.instance.points += 150;
+    }
   }
 
   Future<void> rejeitarIdeia(int ideiaId) async {
