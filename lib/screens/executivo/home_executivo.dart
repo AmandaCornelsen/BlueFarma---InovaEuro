@@ -305,28 +305,50 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
       default:
         currentBody = Container();
     }
-    return Scaffold(
-      appBar: _selectedIndex == 0
-          ? AppBar(
-              title: const Text('Home Executivo'),
-              backgroundColor: const Color(0xFF7C4DFF),
-            )
-          : null,
-      body: SafeArea(child: currentBody),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.indigo,
-        unselectedItemColor: Colors.grey,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.lightbulb_outline), label: 'Projetos'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Perfil'),
-        ],
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFE1BEE7), Color(0xFF7C4DFF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: _selectedIndex == 0
+            ? AppBar(
+                title: const Text('Home Executivo'),
+                backgroundColor: const Color(0xFF7C4DFF),
+                elevation: 6,
+              )
+            : null,
+        body: SafeArea(child: currentBody),
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFB388FF), Color(0xFF7C4DFF)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 12)],
+          ),
+          child: BottomNavigationBar(
+            backgroundColor: Colors.transparent,
+            currentIndex: _selectedIndex,
+            onTap: (index) => setState(() => _selectedIndex = index),
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: Color(0xFF7C4DFF),
+            unselectedItemColor: Colors.white,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+              BottomNavigationBarItem(icon: Icon(Icons.lightbulb_outline), label: 'Projetos'),
+              BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
+              BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Perfil'),
+            ],
+          ),
+        ),
       ),
     );
   }

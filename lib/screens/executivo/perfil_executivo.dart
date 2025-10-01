@@ -84,7 +84,7 @@ class _PerfilExecutivoState extends State<PerfilExecutivo> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFF6F2FF), Color(0xFFEDE7F6)],
+            colors: [Color.fromARGB(255, 137, 125, 167), Color.fromARGB(255, 218, 203, 240)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

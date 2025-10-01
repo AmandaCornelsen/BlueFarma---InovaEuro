@@ -142,7 +142,7 @@ class _ChatExecutivoState extends State<ChatExecutivo> {
                     children: [
                       Text('Chats', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF7C4DFF))),
                       IconButton(
-                        icon: const Icon(Icons.add, color: Color(0xFF7C4DFF)),
+                        icon: const Icon(Icons.add, color: Colors.white),
                         onPressed: _novaConversa,
                         tooltip: 'Nova conversa',
                       ),

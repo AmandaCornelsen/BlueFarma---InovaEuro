@@ -63,73 +63,111 @@ class _ExecutivoProjetosState extends State<ExecutivoProjetos> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Projetos Executivo'),
-        backgroundColor: const Color(0xFF7C4DFF),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFE1BEE7), Color(0xFF7C4DFF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text('Projetos Pendentes',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.deepPurple)),
-            const SizedBox(height: 20),
-            if (ideiasPendentes.isEmpty)
-              const Center(
-                child: Text('Nenhuma ideia pendente',
-                    style: TextStyle(fontSize: 16, color: Colors.grey)),
-              )
-            else
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: ideiasPendentes.length,
-                itemBuilder: (context, index) {
-                  final item = ideiasPendentes[index];
-                  final title = item['title'] ?? 'Sem título';
-                  final description = item['description'] ?? '';
-                  final status = item['status'] ?? 'Pendente';
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 4,
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.deepPurple,
-                        child: const Icon(Icons.lightbulb_outline, color: Colors.white),
-                      ),
-                      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (description.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 4.0),
-                              child: Text(description, style: const TextStyle(fontSize: 14)),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: const Text('Projetos Executivo'),
+          backgroundColor: Color(0xFF7C4DFF),
+          elevation: 6,
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text('Projetos Pendentes',
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF7C4DFF)),
+                  textAlign: TextAlign.center),
+              const SizedBox(height: 20),
+              if (ideiasPendentes.isEmpty)
+                const Center(
+                  child: Text('Nenhuma ideia pendente',
+                      style: TextStyle(fontSize: 16, color: Colors.grey)),
+                )
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: ideiasPendentes.length,
+                  itemBuilder: (context, index) {
+                    final item = ideiasPendentes[index];
+                    final title = item['title'] ?? 'Sem título';
+                    final description = item['description'] ?? '';
+                    final status = item['status'] ?? 'Pendente';
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 10),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                      elevation: 8,
+                      color: Colors.white.withOpacity(0.96),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: Color(0xFFB388FF),
+                                  child: const Icon(Icons.lightbulb_outline, color: Colors.white),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF7C4DFF))),
+                                ),
+                              ],
                             ),
-                          Text('Status: $status'),
-                        ],
+                            if (description.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
+                                child: Text(description, style: TextStyle(fontSize: 15, color: Colors.black87)),
+                              ),
+                            const SizedBox(height: 6),
+                            Text('Status: $status', style: TextStyle(color: Color(0xFF7C4DFF), fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                    elevation: 2,
+                                  ),
+                                  icon: const Icon(Icons.check_circle),
+                                  label: const Text('Aprovar'),
+                                  onPressed: () => _aprovar(item['id'], item['user_id']),
+                                ),
+                                const SizedBox(width: 10),
+                                ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                    elevation: 2,
+                                  ),
+                                  icon: const Icon(Icons.cancel),
+                                  label: const Text('Rejeitar'),
+                                  onPressed: () => _rejeitar(item['id']),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.check_circle, color: Colors.green),
-                            onPressed: () => _aprovar(item['id'], item['user_id']),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.cancel, color: Colors.red),
-                            onPressed: () => _rejeitar(item['id']),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-          ],
+                    );
+                  },
+                ),
+            ],
+          ),
         ),
       ),
     );
