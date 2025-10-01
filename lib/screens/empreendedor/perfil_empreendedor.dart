@@ -17,9 +17,16 @@ class _PerfilEmpreendedorState extends State<PerfilEmpreendedor> {
   final TextEditingController senhaController = TextEditingController();
   int? userId;
 
+
   @override
   void initState() {
     super.initState();
+    _loadUserData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _loadUserData();
   }
 
