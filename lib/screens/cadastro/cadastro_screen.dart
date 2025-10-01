@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:inovaeuro/database_help.dart';
 import 'package:inovaeuro/current_user.dart';
 import 'package:inovaeuro/routes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CadastroScreen extends StatefulWidget {
   const CadastroScreen({super.key});
@@ -59,6 +60,12 @@ class _CadastroScreenState extends State<CadastroScreen> {
         CurrentUser.instance.email = user['email'];
         CurrentUser.instance.role = user['role'];
         CurrentUser.instance.points = user['points'] ?? 0;
+
+        // Salva no SharedPreferences igual ao login
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('logged_user_id', user['id']);
+        await prefs.setString('logged_user_email', user['email']);
+        await prefs.setString('logged_user_role', user['role']);
       }
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Usuário cadastrado com sucesso!')),

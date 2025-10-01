@@ -52,10 +52,7 @@ class _PerfilExecutivoState extends State<PerfilExecutivo> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Text(
-              'Perfil',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+            // Removido título duplicado 'Perfil'
             TextFormField(
               controller: nomeController,
               decoration: const InputDecoration(labelText: 'Nome'),

@@ -63,68 +63,71 @@ class _ExecutivoProjetosState extends State<ExecutivoProjetos> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text('Projetos Pendentes',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.deepPurple)),
-          const SizedBox(height: 20),
-          if (ideiasPendentes.isEmpty)
-            const Center(
-              child: Text('Nenhuma ideia pendente',
-                  style: TextStyle(fontSize: 16, color: Colors.grey)),
-            )
-          else
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: ideiasPendentes.length,
-              itemBuilder: (context, index) {
-                final item = ideiasPendentes[index];
-                final title = item['title'] ?? 'Sem título';
-                final description = item['description'] ?? '';
-                final status = item['status'] ?? 'Pendente';
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 4,
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.deepPurple,
-                      child: const Icon(Icons.lightbulb_outline, color: Colors.white),
-                    ),
-                    title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (description.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 4.0),
-                            child: Text(description, style: const TextStyle(fontSize: 14)),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Projetos')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text('Projetos Pendentes',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.deepPurple)),
+            const SizedBox(height: 20),
+            if (ideiasPendentes.isEmpty)
+              const Center(
+                child: Text('Nenhuma ideia pendente',
+                    style: TextStyle(fontSize: 16, color: Colors.grey)),
+              )
+            else
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: ideiasPendentes.length,
+                itemBuilder: (context, index) {
+                  final item = ideiasPendentes[index];
+                  final title = item['title'] ?? 'Sem título';
+                  final description = item['description'] ?? '';
+                  final status = item['status'] ?? 'Pendente';
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 4,
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.deepPurple,
+                        child: const Icon(Icons.lightbulb_outline, color: Colors.white),
+                      ),
+                      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (description.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 4.0),
+                              child: Text(description, style: const TextStyle(fontSize: 14)),
+                            ),
+                          Text('Status: $status'),
+                        ],
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.check_circle, color: Colors.green),
+                            onPressed: () => _aprovar(item['id'], item['user_id']),
                           ),
-                        Text('Status: $status'),
-                      ],
+                          IconButton(
+                            icon: const Icon(Icons.cancel, color: Colors.red),
+                            onPressed: () => _rejeitar(item['id']),
+                          ),
+                        ],
+                      ),
                     ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.check_circle, color: Colors.green),
-                          onPressed: () => _aprovar(item['id'], item['user_id']),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.cancel, color: Colors.red),
-                          onPressed: () => _rejeitar(item['id']),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-        ],
+                  );
+                },
+              ),
+          ],
+        ),
       ),
     );
   }

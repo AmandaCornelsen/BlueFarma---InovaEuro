@@ -124,10 +124,12 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home Empreendedor'),
-  actions: [BonusStar(key: _bonusStarKey)],
-      ),
+      appBar: _selectedIndex == 0
+          ? AppBar(
+              title: const Text('Home Empreendedor'),
+              actions: [BonusStar(key: _bonusStarKey)],
+            )
+          : null,
       body: SafeArea(child: currentBody),
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton(

@@ -283,7 +283,7 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Home Executivo')),
+      appBar: _selectedIndex == 0 ? AppBar(title: const Text('Home Executivo')) : null,
       body: SafeArea(child: currentBody),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,

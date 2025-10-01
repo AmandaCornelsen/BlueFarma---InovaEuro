@@ -13,35 +13,49 @@ class _ChatEmpreendedorState extends State<ChatEmpreendedor> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        children: [
-          Text('Chat com Executivo', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          Expanded(
-            child: ListView.builder(
-              itemCount: mensagens.length,
-              itemBuilder: (context, idx) => ListTile(
-                title: Text(mensagens[idx]),
-                subtitle: idx % 2 == 0 ? Text('Você') : Text('Executivo'),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Chat')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            const SizedBox(height: 8),
+            const Center(
+              child: Text(
+                'Chat com Executivo',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple,
+                ),
               ),
             ),
-          ),
-          Row(
-            children: [
-              Expanded(child: TextField(controller: _controller, decoration: InputDecoration(hintText: 'Digite sua mensagem'))),
-              IconButton(
-                icon: Icon(Icons.send),
-                onPressed: () {
-                  setState(() {
-                    mensagens.add(_controller.text);
-                  });
-                  _controller.clear();
-                },
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.builder(
+                itemCount: mensagens.length,
+                itemBuilder: (context, idx) => ListTile(
+                  title: Text(mensagens[idx]),
+                  subtitle: idx % 2 == 0 ? const Text('Você') : const Text('Executivo'),
+                ),
               ),
-            ],
-          ),
-        ],
+            ),
+            Row(
+              children: [
+                Expanded(child: TextField(controller: _controller, decoration: const InputDecoration(hintText: 'Digite sua mensagem'))),
+                IconButton(
+                  icon: const Icon(Icons.send),
+                  onPressed: () {
+                    setState(() {
+                      mensagens.add(_controller.text);
+                    });
+                    _controller.clear();
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
