@@ -3,6 +3,16 @@ import 'package:path/path.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class DatabaseHelper {
+  Future<List<Map<String, dynamic>>> getIdeasByStatuses(List<String> statuses) async {
+    final db = await database;
+    final placeholders = List.filled(statuses.length, '?').join(',');
+    return await db.query(
+      'ideas',
+      where: 'status IN ($placeholders)',
+      whereArgs: statuses,
+      orderBy: 'created_at DESC',
+    );
+  }
   // ...existing code...
 
   // Buscar todos os usuários cadastrados

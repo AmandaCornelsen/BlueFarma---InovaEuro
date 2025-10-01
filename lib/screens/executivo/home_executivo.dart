@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inovaeuro/data/app_repository.dart';
+import 'package:inovaeuro/database_help.dart';
 import 'package:inovaeuro/current_user.dart';
 import 'chat_executivo.dart';
 import 'perfil_executivo.dart';
@@ -22,26 +23,29 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
     'finalizadas': 0,
   };
 
-  final List<Map<String, dynamic>> empreendedores = [
-    {
-      "nome": "Ana Silva",
-      "submetidos": 4,
-      "aprovados": 2,
-      "rejeitados": 1,
-    },
-    {
-      "nome": "Carlos Souza",
-      "submetidos": 3,
-      "aprovados": 1,
-      "rejeitados": 2,
-    },
-    {
-      "nome": "Mariana Costa",
-      "submetidos": 5,
-      "aprovados": 4,
-      "rejeitados": 1,
-    },
-  ];
+  List<Map<String, dynamic>> empreendedores = [];
+  Future<void> _loadEmpreendedores() async {
+    final db = DatabaseHelper.instance;
+    final lista = await db.getAllUsers();
+    final empreendedoresDb = lista.where((u) => u['role'] == 'Empreendedor').toList();
+    List<Map<String, dynamic>> result = [];
+    for (var emp in empreendedoresDb) {
+      final projetos = await db.database.then((dbc) => dbc.query('ideas', where: 'user_id = ?', whereArgs: [emp['id']]));
+      final submetidos = projetos.length;
+      final aprovados = projetos.where((p) => p['status'] == 'approved').length;
+      final rejeitados = projetos.where((p) => p['status'] == 'rejected').length;
+      result.add({
+        "nome": emp['nome'] ?? emp['email'],
+        "submetidos": submetidos,
+        "aprovados": aprovados,
+        "rejeitados": rejeitados,
+        "id": emp['id'],
+      });
+    }
+    setState(() {
+      empreendedores = result;
+    });
+  }
 
   void _onNavItemTapped(int index) {
     setState(() => _selectedIndex = index);
@@ -71,8 +75,9 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
 
   @override
   void initState() {
-    super.initState();
-    _loadDashboard();
+  super.initState();
+  _loadDashboard();
+  _loadEmpreendedores();
   }
 
   @override
@@ -114,153 +119,145 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _HoverCard(
-                            width: cardWidth,
+                          Card(
                             color: Colors.redAccent,
-                            emoji: "🕒",
-                            title: 'Projetos Pendentes',
-                            count: dashboardCounts['pendentes']!,
-                            onTap: () => _onNavItemTapped(1),
+                            child: InkWell(
+                              onTap: () => _onNavItemTapped(1),
+                              child: SizedBox(
+                                width: cardWidth,
+                                height: 80,
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text('🕒', style: TextStyle(fontSize: 24)),
+                                      Text('Pendentes', style: TextStyle(color: Colors.white)),
+                                      Text('${dashboardCounts['pendentes']}', style: TextStyle(color: Colors.white)),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                          _HoverCard(
-                            width: cardWidth,
+                          Card(
                             color: Colors.green,
-                            emoji: "✅",
-                            title: 'Projetos Aprovados',
-                            count: dashboardCounts['aprovadas']!,
+                            child: SizedBox(
+                              width: cardWidth,
+                              height: 80,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text('✅', style: TextStyle(fontSize: 24)),
+                                    Text('Aprovados', style: TextStyle(color: Colors.white)),
+                                    Text('${dashboardCounts['aprovadas']}', style: TextStyle(color: Colors.white)),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
-                          _HoverCard(
-                            width: cardWidth,
+                          Card(
                             color: Colors.blueAccent,
-                            emoji: "🚀",
-                            title: 'Em Andamento',
-                            count: dashboardCounts['em_andamento']!,
+                            child: SizedBox(
+                              width: cardWidth,
+                              height: 80,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text('🚀', style: TextStyle(fontSize: 24)),
+                                    Text('Em Andamento', style: TextStyle(color: Colors.white)),
+                                    Text('${dashboardCounts['em_andamento']}', style: TextStyle(color: Colors.white)),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
-                          _HoverCard(
-                            width: cardWidth,
+                          Card(
                             color: Colors.purpleAccent,
-                            emoji: "🏁",
-                            title: 'Finalizados',
-                            count: dashboardCounts['finalizadas']!,
+                            child: SizedBox(
+                              width: cardWidth,
+                              height: 80,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text('🏁', style: TextStyle(fontSize: 24)),
+                                    Text('Finalizados', style: TextStyle(color: Colors.white)),
+                                    Text('${dashboardCounts['finalizadas']}', style: TextStyle(color: Colors.white)),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       );
                     },
                   ),
-                  const SizedBox(height: 30),
-                  // Card de Empreendedores
-                  Card(
-                    elevation: 6,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    color: Colors.indigo.shade50,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Empreendedores',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
+                  ...empreendedores.map((e) => ListTile(
+                    title: Text(e["nome"] ?? ''),
+                    subtitle: Text("Submetidos: ${e["submetidos"]}, Aprovados: ${e["aprovados"]}, Rejeitados: ${e["rejeitados"]}"),
+                    trailing: const Icon(Icons.arrow_forward_ios),
+                    onTap: () async {
+                      final db = DatabaseHelper.instance;
+                      final projetos = await db.database.then((dbc) => dbc.query('ideas', where: 'user_id = ?', whereArgs: [e['id']]));
+                      await showDialog(
+                        context: context,
+                        builder: (context) => Dialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                          const SizedBox(height: 10),
-                          ...empreendedores.map((e) {
-                            return ListTile(
-                              title: Text(e["nome"]),
-                              subtitle: Text(
-                                  "Submetidos: ${e["submetidos"]}, Aprovados: ${e["aprovados"]}, Rejeitados: ${e["rejeitados"]}"),
-                              trailing: const Icon(Icons.arrow_forward_ios),
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => Dialog(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.indigo.shade50,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor: Colors.indigo,
+                                      child: Text((e["nome"] ?? '')[0], style: const TextStyle(color: Colors.white)),
                                     ),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(20),
-                                      decoration: BoxDecoration(
-                                        color: Colors.indigo.shade50,
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              CircleAvatar(
-                                                backgroundColor: Colors.indigo,
-                                                child: Text(
-                                                  e["nome"][0],
-                                                  style: const TextStyle(
-                                                      color: Colors.white),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 12),
-                                              Text(
-                                                e["nome"],
-                                                style: const TextStyle(
-                                                    fontSize: 20,
-                                                    fontWeight: FontWeight.bold),
-                                              ),
-                                            ],
-                                          ),
-                                          const Divider(height: 20, thickness: 1),
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.pending,
-                                                  color: Colors.orange),
-                                              const SizedBox(width: 8),
-                                              Text(
-                                                  "Submetidos: ${e["submetidos"]}"),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 6),
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.check_circle,
-                                                  color: Colors.green),
-                                              const SizedBox(width: 8),
-                                              Text(
-                                                  "Aprovados: ${e["aprovados"]}"),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 6),
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.cancel,
-                                                  color: Colors.red),
-                                              const SizedBox(width: 8),
-                                              Text(
-                                                  "Rejeitados: ${e["rejeitados"]}"),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 12),
-                                          Center(
-                                            child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      const Color.fromARGB(255, 174, 181, 220)),
-                                              onPressed: () =>
-                                                  Navigator.of(context).pop(),
-                                              child: const Text("Fechar"),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(e["nome"] ?? '', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
+                                const Divider(height: 20, thickness: 1),
+                                ...projetos.map((p) => Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 4),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Título: ${p['title'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                      Text('Status: ${p['status'] ?? ''}'),
+                                    ],
                                   ),
-                                );
-                              },
-                            );
-                          }).toList(),
-                        ],
-                      ),
-                    ),
-                  ),
+                                )),
+                                const SizedBox(height: 12),
+                                Center(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color.fromARGB(255, 174, 181, 220)),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      _loadEmpreendedores();
+                                      _loadDashboard();
+                                    },
+                                    child: const Text("Fechar"),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  )).toList(),
                 ],
               ),
             ),
@@ -308,78 +305,6 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
           BottomNavigationBarItem(
               icon: Icon(Icons.person_outline), label: 'Perfil'),
         ],
-      ),
-    );
-  }
-}
-
-// HoverCard atualizado
-class _HoverCard extends StatefulWidget {
-  final double width;
-  final Color color;
-  final String title;
-  final int count;
-  final String emoji;
-  final VoidCallback? onTap;
-
-  const _HoverCard({
-    required this.width,
-    required this.color,
-    required this.title,
-    required this.count,
-    required this.emoji,
-    this.onTap,
-  });
-
-  @override
-  State<_HoverCard> createState() => _HoverCardState();
-}
-
-class _HoverCardState extends State<_HoverCard> {
-  bool _hovering = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final scale = _hovering ? 1.05 : 1.0;
-
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovering = true),
-      onExit: (_) => setState(() => _hovering = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          transform: Matrix4.identity()..scale(scale),
-          width: widget.width,
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          decoration: BoxDecoration(
-            color: widget.color,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(widget.emoji, style: const TextStyle(fontSize: 32)),
-              const SizedBox(height: 8),
-              Text('${widget.count}',
-                  style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white)),
-              const SizedBox(height: 4),
-              Text(widget.title,
-                  style: const TextStyle(fontSize: 16, color: Colors.white),
-                  textAlign: TextAlign.center),
-            ],
-          ),
-        ),
       ),
     );
   }

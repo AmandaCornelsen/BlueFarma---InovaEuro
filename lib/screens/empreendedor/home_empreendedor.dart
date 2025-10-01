@@ -14,6 +14,20 @@ class EmpreendedorScreen extends StatefulWidget {
 }
 
 class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
+  String _statusPt(String status) {
+    switch (status) {
+      case 'approved':
+        return 'Aprovado';
+      case 'in_progress':
+        return 'Em andamento';
+      case 'completed':
+        return 'Finalizado';
+      case 'rejected':
+        return 'Rejeitado';
+      default:
+        return status;
+    }
+  }
   final GlobalKey<_BonusStarState> _bonusStarKey = GlobalKey<_BonusStarState>();
   final GlobalKey<LightEmpreendedorState> _lightEmpreendedorKey = GlobalKey<LightEmpreendedorState>();
 
@@ -41,7 +55,33 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
             const SizedBox(height: 8),
             Text('Tempo de conclusão: ${projeto['duration_days'] ?? ''} dias'),
             const SizedBox(height: 8),
-            Text('Status: ${projeto['status'] ?? ''}'),
+            Text('Status: ${_statusPt(projeto['status'])}'),
+            const SizedBox(height: 16),
+            if (projeto['status'] == 'approved' || projeto['status'] == 'in_progress') ...[
+              const Divider(),
+              const Text('Atualizar status:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () async {
+                  await AppRepository.instance.updateIdeaStatus(projeto['id'], 'in_progress');
+                  Navigator.of(context).pop();
+                  setState(() {});
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Projeto marcado como Em andamento!')));
+                },
+                child: const Text('Em andamento'),
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () async {
+                  await AppRepository.instance.updateIdeaStatus(projeto['id'], 'completed');
+                  Navigator.of(context).pop();
+                  setState(() {});
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Projeto marcado como Finalizado!')));
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                child: const Text('Finalizado'),
+              ),
+            ],
           ],
         ),
         actions: [
@@ -68,14 +108,14 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
     switch (_selectedIndex) {
       case 0:
         currentBody = FutureBuilder<List<Map<String, dynamic>>>(
-          future: AppRepository.instance.ideiasAprovadasDoUsuario(),
+          future: AppRepository.instance.ideiasDoUsuarioComStatus(['approved', 'in_progress', 'completed']),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
             final projetos = snapshot.data ?? [];
             if (projetos.isEmpty) {
-              return const Center(child: Text('Nenhum projeto aprovado ainda.'));
+              return const Center(child: Text('Nenhum projeto aprovado, em andamento ou finalizado ainda.'));
             }
             return ListView.builder(
               itemCount: projetos.length,

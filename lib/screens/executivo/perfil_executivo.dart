@@ -59,15 +59,17 @@ class _PerfilExecutivoState extends State<PerfilExecutivo> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // Removido título duplicado 'Perfil'
+            const SizedBox(height: 20),
             TextFormField(
               controller: nomeController,
               decoration: const InputDecoration(labelText: 'Nome'),
             ),
+            const SizedBox(height: 16),
             TextFormField(
               controller: emailController,
               decoration: const InputDecoration(labelText: 'Email'),
             ),
+            const SizedBox(height: 16),
             TextFormField(
               controller: senhaController,
               decoration: InputDecoration(
@@ -83,7 +85,7 @@ class _PerfilExecutivoState extends State<PerfilExecutivo> {
               ),
               obscureText: !_senhaVisivel,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
                 if (userId == null) {

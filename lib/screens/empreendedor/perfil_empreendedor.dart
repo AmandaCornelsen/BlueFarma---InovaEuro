@@ -63,14 +63,17 @@ class _PerfilEmpreendedorState extends State<PerfilEmpreendedor> {
               'Perfil',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 20),
             TextFormField(
               controller: nomeController,
               decoration: const InputDecoration(labelText: 'Nome'),
             ),
+            const SizedBox(height: 16),
             TextFormField(
               controller: emailController,
               decoration: const InputDecoration(labelText: 'Email'),
             ),
+            const SizedBox(height: 16),
             TextFormField(
               controller: senhaController,
               decoration: InputDecoration(
@@ -86,7 +89,7 @@ class _PerfilEmpreendedorState extends State<PerfilEmpreendedor> {
               ),
               obscureText: !_senhaVisivel,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
                 if (userId == null) {

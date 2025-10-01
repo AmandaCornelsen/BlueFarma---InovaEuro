@@ -6,6 +6,15 @@ import 'package:inovaeuro/current_user.dart';
 
 
 class AppRepository {
+  Future<List<Map<String, dynamic>>> ideiasDoUsuarioComStatus(List<String> statusList) async {
+    final userId = CurrentUser.instance.id;
+    if (userId == null) throw Exception("Usuário não logado");
+    final todas = await _db.getIdeasByStatuses(statusList);
+    return todas.where((p) => p['user_id'] == userId).toList();
+  }
+  Future<void> updateIdeaStatus(int ideiaId, String status) async {
+    await _db.updateIdeaStatus(ideiaId, status);
+  }
   Future<List<Map<String, dynamic>>> ideiasAprovadasDoUsuario() async {
     final userId = CurrentUser.instance.id;
     if (userId == null) throw Exception("Usuário não logado");

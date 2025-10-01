@@ -68,7 +68,7 @@ class _BonusEmpreendedorState extends State<BonusEmpreendedor> {
                             fontWeight: FontWeight.bold, fontSize: 16)),
                     const SizedBox(height: 12),
                     LinearProgressIndicator(
-                      value: (pontos / 500).clamp(0.0, 1.0),
+                      value: (pontos / 2500).clamp(0.0, 1.0),
                       minHeight: 12,
                       backgroundColor: Colors.grey[300],
                     ),
