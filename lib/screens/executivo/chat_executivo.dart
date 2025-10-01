@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import '../../database_help.dart';
 import '../../data/chat_models.dart';
@@ -62,56 +61,23 @@ class _ChatExecutivoState extends State<ChatExecutivo> {
   void _novaConversa() async {
     final db = DatabaseHelper.instance;
     final empreendedores = await db.database.then((db) => db.query('users', where: 'role = ?', whereArgs: ['Empreendedor']));
-    showDialog(
+    showModalBottomSheet(
       context: context,
       builder: (ctx) {
-        return Center(
-          child: Material(
-            color: Colors.transparent,
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.85,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [BoxShadow(color: Colors.deepPurple.withOpacity(0.15), blurRadius: 16)],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('Selecione um empreendedor', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF7C4DFF))),
-                  const SizedBox(height: 16),
-                  ...empreendedores.map((e) => Card(
-                    elevation: 3,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.deepPurple.shade100,
-                        child: Text(((e['nome'] ?? 'E').toString())[0]),
-                      ),
-                      title: Text((e['nome'] ?? 'Empreendedor').toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text((e['email'] ?? '').toString(), style: const TextStyle(color: Colors.deepPurple)),
-                      trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xFF7C4DFF)),
-                      onTap: () async {
-                        Navigator.pop(ctx);
-                        final convId = await db.createOrGetConversation(widget.executivoId, e['id'] as int);
-                        setState(() {
-                          carregando = true;
-                        });
-                        await _carregarConversas();
-                        _abrirChat(convId, (e['nome'] ?? 'Empreendedor').toString(), e['id'] as int);
-                      },
-                    ),
-                  )),
-                  const SizedBox(height: 12),
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: const Text('Cancelar', style: TextStyle(color: Color(0xFF7C4DFF), fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        return ListView(
+          children: empreendedores.map((e) => ListTile(
+            title: Text((e['nome'] ?? 'Empreendedor').toString()),
+            subtitle: Text((e['email'] ?? '').toString()),
+            onTap: () async {
+              Navigator.pop(ctx);
+              final convId = await db.createOrGetConversation(widget.executivoId, e['id'] as int);
+              setState(() {
+                carregando = true;
+              });
+              await _carregarConversas();
+              _abrirChat(convId, (e['nome'] ?? 'Empreendedor').toString(), e['id'] as int);
+            },
+          )).toList(),
         );
       },
     );
@@ -135,55 +101,26 @@ class _ChatExecutivoState extends State<ChatExecutivo> {
       appBar: AppBar(
         title: const Text('Chats'),
         actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text('Nova conversa', style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7C4DFF),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 6,
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-              ),
-              onPressed: _novaConversa,
-            ),
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: _novaConversa,
           ),
         ],
       ),
       body: carregando
           ? const Center(child: CircularProgressIndicator())
           : conversas.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.chat_bubble_outline, size: 64, color: Colors.deepPurple.shade200),
-                      const SizedBox(height: 16),
-                      const Text('Nenhuma conversa ativa', style: TextStyle(fontSize: 18, color: Color(0xFF7C4DFF))),
-                    ],
-                  ),
-                )
+              ? const Center(child: Text('Nenhuma conversa ativa'))
               : ListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
                   itemCount: conversas.length,
                   itemBuilder: (ctx, idx) {
                     final c = conversas[idx];
                     final ultimaMsg = c.mensagens.isNotEmpty ? c.mensagens.last.texto : '';
-                    return Card(
-                      elevation: 4,
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.deepPurple.shade100,
-                          child: Text(c.usuario2Nome.isNotEmpty ? c.usuario2Nome[0] : 'E'),
-                        ),
-                        title: Text(c.usuario2Nome, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text(ultimaMsg, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF7C4DFF))),
-                        trailing: c.novaMensagem ? const Icon(Icons.mark_chat_unread, color: Colors.red) : null,
-                        onTap: () => _abrirChat(c.id, c.usuario2Nome, c.usuario2Id),
-                      ),
+                    return ListTile(
+                      title: Text(c.usuario2Nome),
+                      subtitle: Text(ultimaMsg),
+                      trailing: c.novaMensagem ? const Icon(Icons.mark_chat_unread, color: Colors.red) : null,
+                      onTap: () => _abrirChat(c.id, c.usuario2Nome, c.usuario2Id),
                     );
                   },
                 ),
@@ -248,111 +185,47 @@ class _TelaConversaState extends State<TelaConversa> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: Colors.deepPurple.shade100,
-              child: Text(widget.nomeContato.isNotEmpty ? widget.nomeContato[0] : 'E'),
-            ),
-            const SizedBox(width: 12),
-            Text(widget.nomeContato, style: const TextStyle(fontWeight: FontWeight.bold)),
-          ],
-        ),
-        backgroundColor: const Color(0xFF7C4DFF),
-      ),
+      appBar: AppBar(title: Text(widget.nomeContato)),
       body: carregando
           ? const Center(child: CircularProgressIndicator())
-          : Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFF6F2FF), Color(0xFFEDE7F6)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                      itemCount: mensagens.length,
-                      itemBuilder: (ctx, idx) {
-                        final m = mensagens[idx];
-                        final souEu = m.remetenteId == widget.meuId;
-                        return Row(
-                          mainAxisAlignment: souEu ? MainAxisAlignment.end : MainAxisAlignment.start,
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
-                              decoration: BoxDecoration(
-                                color: souEu ? const Color(0xFF7C4DFF) : Colors.white,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: const Radius.circular(18),
-                                  topRight: const Radius.circular(18),
-                                  bottomLeft: Radius.circular(souEu ? 18 : 4),
-                                  bottomRight: Radius.circular(souEu ? 4 : 18),
-                                ),
-                                boxShadow: [BoxShadow(color: Colors.deepPurple.withOpacity(0.08), blurRadius: 6)],
-                              ),
-                              child: Text(
-                                m.texto,
-                                style: TextStyle(
-                                  color: souEu ? Colors.white : const Color(0xFF7C4DFF),
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
+          : Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: mensagens.length,
+                    itemBuilder: (ctx, idx) {
+                      final m = mensagens[idx];
+                      final souEu = m.remetenteId == widget.meuId;
+                      return Align(
+                        alignment: souEu ? Alignment.centerRight : Alignment.centerLeft,
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: souEu ? Colors.green[100] : Colors.grey[300],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(m.texto),
+                        ),
+                      );
+                    },
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [BoxShadow(color: Colors.deepPurple.withOpacity(0.07), blurRadius: 8)],
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(18),
-                        topRight: Radius.circular(18),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        decoration: const InputDecoration(hintText: 'Digite sua mensagem'),
                       ),
                     ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _controller,
-                            decoration: InputDecoration(
-                              hintText: 'Digite sua mensagem...',
-                              filled: true,
-                              fillColor: const Color(0xFFF6F2FF),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: _enviarMensagem,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF7C4DFF),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                            elevation: 4,
-                          ),
-                          child: const Icon(Icons.send, color: Colors.white),
-                        ),
-                      ],
+                    IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: _enviarMensagem,
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
     );
   }

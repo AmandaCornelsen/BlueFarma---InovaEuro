@@ -3,6 +3,7 @@ import 'package:path/path.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class DatabaseHelper {
+
   Future<void> deleteUser(int userId) async {
     final db = await database;
     await db.delete('users', where: 'id = ?', whereArgs: [userId]);

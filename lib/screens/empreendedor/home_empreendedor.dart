@@ -108,7 +108,7 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
     switch (_selectedIndex) {
       case 0:
         currentBody = FutureBuilder<List<Map<String, dynamic>>>(
-          future: AppRepository.instance.ideiasDoUsuarioComStatus(['approved', 'in_progress', 'completed']),
+          future: AppRepository.instance.ideiasDoUsuarioComStatus(['aprovado', 'em andamento', 'finalizado']),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());

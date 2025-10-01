@@ -59,7 +59,6 @@ class LightEmpreendedorState extends State<LightEmpreendedor> {
     return todas.where((p) => p['user_id'] == userId).toList();
   }
 
-  // Removido botão de aprovação do empreendedor (não faz sentido para o próprio dono)
 
   @override
   Widget build(BuildContext context) {
