@@ -166,8 +166,8 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
                             final db = DatabaseHelper.instance;
                             final projetosAprovados = await db.database.then((dbc) => dbc.query(
                               'ideas',
-                              where: 'user_id = ? AND status = ?',
-                              whereArgs: [e['id'], 'approved'],
+                              where: 'user_id = ? AND status IN (?, ?, ?)',
+                              whereArgs: [e['id'], 'approved', 'in_progress', 'completed'],
                             ));
                             showDialog(
                               context: context,
