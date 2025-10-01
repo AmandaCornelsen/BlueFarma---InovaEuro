@@ -265,8 +265,12 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
         );
         break;
       case 1:
-        currentBody =
-            ExecutivoProjetos(onProjetoAprovadoOuRejeitado: _loadDashboard);
+        currentBody = ExecutivoProjetos(
+          onProjetoAprovadoOuRejeitado: () {
+            _loadDashboard();
+            _loadEmpreendedores();
+          },
+        );
         break;
       case 2:
           if (CurrentUser.instance.id == null) {
