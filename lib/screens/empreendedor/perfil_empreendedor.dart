@@ -79,7 +79,7 @@ class _PerfilEmpreendedorState extends State<PerfilEmpreendedor> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFF6F2FF), Color(0xFFEDE7F6)],
+            colors: [Color.fromARGB(255, 137, 125, 167), Color.fromARGB(255, 218, 203, 240)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -100,7 +100,7 @@ class _PerfilEmpreendedorState extends State<PerfilEmpreendedor> {
                       children: [
                         CircleAvatar(
                           radius: 38,
-                          backgroundColor: Colors.deepPurple.shade100,
+                          backgroundColor: const Color.fromARGB(255, 177, 151, 224),
                           child: const Icon(Icons.person, size: 44, color: Color(0xFF7C4DFF)),
                         ),
                         const SizedBox(height: 12),

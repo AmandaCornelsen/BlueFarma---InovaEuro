@@ -224,39 +224,134 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
       default:
         appBarTitle = '';
     }
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(appBarTitle),
-        actions: _selectedIndex == 0 ? [BonusStar(key: _bonusStarKey)] : null,
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFE1BEE7), Color(0xFF7C4DFF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
       ),
-      body: SafeArea(child: currentBody),
-      floatingActionButton: _selectedIndex == 0
-          ? FloatingActionButton(
-              onPressed: _onAddPressed,
-              backgroundColor: Colors.purple,
-              child: const Icon(Icons.add, size: 32),
-            )
-          : null,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onNavItemTapped,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.purple,
-        unselectedItemColor: Colors.grey,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.lightbulb_outline), label: 'Ideias'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.laptop_chromebook_outlined),
-              label: 'Bonificação'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline), label: 'Perfil'),
-        ],
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: Text(appBarTitle),
+          backgroundColor: Color(0xFF7C4DFF),
+          elevation: 6,
+          actions: _selectedIndex == 0 ? [BonusStar(key: _bonusStarKey)] : null,
+        ),
+        body: SafeArea(
+          child: (_selectedIndex == 0)
+              ? Container(
+                  child: FutureBuilder<List<Map<String, dynamic>>>(
+                    future: AppRepository.instance.ideiasDoUsuarioComStatus(['approved', 'in_progress', 'completed']),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      final projetos = snapshot.data ?? [];
+                      if (projetos.isEmpty) {
+                        return const Center(child: Text('Nenhum projeto aprovado ainda.', style: TextStyle(color: Color(0xFF7C4DFF), fontWeight: FontWeight.bold, fontSize: 18)));
+                      }
+                      return ListView.builder(
+                        itemCount: projetos.length,
+                        itemBuilder: (context, index) {
+                          final projeto = projetos[index];
+                          return Card(
+                            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                            elevation: 8,
+                            color: Colors.white.withOpacity(0.96),
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: Color(0xFFB388FF),
+                                child: Icon(Icons.lightbulb, color: Colors.white),
+                              ),
+                              title: Text(projeto['title'] ?? '', style: TextStyle(color: Color(0xFF7C4DFF), fontWeight: FontWeight.bold)),
+                              subtitle: Text('Categoria: ${projeto['category'] ?? ''}', style: TextStyle(color: Color(0xFF7C4DFF))),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    tooltip: 'Apagar projeto',
+                                    onPressed: () async {
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: const Text('Confirmar exclusão'),
+                                          content: const Text('Deseja realmente apagar este projeto? Esta ação não pode ser desfeita.'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.of(context).pop(false),
+                                              child: const Text('Cancelar'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () => Navigator.of(context).pop(true),
+                                              child: const Text('Apagar', style: TextStyle(color: Colors.red)),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                      if (confirm == true) {
+                                        await AppRepository.instance.apagarProjeto(projeto['id']);
+                                        setState(() {});
+                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Projeto apagado com sucesso.')));
+                                      }
+                                    },
+                                  ),
+                                  const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF7C4DFF)),
+                                ],
+                              ),
+                              onTap: () => _abrirDetalhesProjeto(projeto),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                )
+              : SafeArea(child: currentBody),
+        ),
+        floatingActionButton: _selectedIndex == 0
+            ? FloatingActionButton(
+                onPressed: _onAddPressed,
+                backgroundColor: Color(0xFF7C4DFF),
+                child: const Icon(Icons.add, size: 32, color: Colors.white),
+              )
+            : null,
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFB388FF), Color(0xFF7C4DFF)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 12)],
+          ),
+          child: BottomNavigationBar(
+            backgroundColor: Colors.transparent,
+            currentIndex: _selectedIndex,
+            onTap: _onNavItemTapped,
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: Color(0xFF7C4DFF),
+            unselectedItemColor: Colors.white,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.lightbulb_outline), label: 'Ideias'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.chat_bubble_outline), label: 'Chat'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.laptop_chromebook_outlined),
+                  label: 'Bonificação'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.person_outline), label: 'Perfil'),
+            ],
+          ),
+        ),
       ),
     );
   }
