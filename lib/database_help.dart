@@ -188,15 +188,30 @@ class DatabaseHelper {
     final db = await database;
     final result = <String, int>{};
 
-    final statuses = ['pending', 'approved', 'in_progress', 'completed'];
-    for (var status in statuses) {
-      final count = firstIntValue(
-        await db.rawQuery('SELECT COUNT(*) FROM ideas WHERE status = ?', [
-          status,
-        ]),
-      );
-      result[status] = count ?? 0;
-    }
+    // Conta pendentes normalmente
+    final pending = firstIntValue(
+      await db.rawQuery('SELECT COUNT(*) FROM ideas WHERE status = ?', ['pending']),
+    ) ?? 0;
+    result['pending'] = pending;
+
+    // Conta aprovadas: approved + in_progress + completed
+    final aprovadas = firstIntValue(
+      await db.rawQuery('SELECT COUNT(*) FROM ideas WHERE status IN (?, ?, ?)', ['approved', 'in_progress', 'completed']),
+    ) ?? 0;
+    result['approved'] = aprovadas;
+
+    // Conta em andamento normalmente
+    final emAndamento = firstIntValue(
+      await db.rawQuery('SELECT COUNT(*) FROM ideas WHERE status = ?', ['in_progress']),
+    ) ?? 0;
+    result['in_progress'] = emAndamento;
+
+    // Conta finalizados normalmente
+    final finalizadas = firstIntValue(
+      await db.rawQuery('SELECT COUNT(*) FROM ideas WHERE status = ?', ['completed']),
+    ) ?? 0;
+    result['completed'] = finalizadas;
+
     return result;
   }
 
