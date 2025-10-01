@@ -79,105 +79,152 @@ class _PerfilExecutivoState extends State<PerfilExecutivo> {
       appBar: AppBar(
         title: const Text('Perfil Executivo'),
         backgroundColor: const Color(0xFF7C4DFF),
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: nomeController,
-              decoration: const InputDecoration(labelText: 'Nome'),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: senhaController,
-              decoration: InputDecoration(
-                labelText: 'Senha',
-                suffixIcon: IconButton(
-                  icon: Icon(_senhaVisivel ? Icons.visibility : Icons.visibility_off),
-                  onPressed: () {
-                    setState(() {
-                      _senhaVisivel = !_senhaVisivel;
-                    });
-                  },
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFF6F2FF), Color(0xFFEDE7F6)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+              margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: Padding(
+                padding: const EdgeInsets.all(28),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 38,
+                          backgroundColor: Colors.deepPurple.shade100,
+                          child: const Icon(Icons.person, size: 44, color: Color(0xFF7C4DFF)),
+                        ),
+                        const SizedBox(height: 12),
+                        Text('Perfil Executivo', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.deepPurple.shade700)),
+                        const SizedBox(height: 8),
+                        Text('Gerencie seus dados com conforto e segurança.', style: TextStyle(fontSize: 15, color: Colors.deepPurple.shade400)),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    TextFormField(
+                      controller: nomeController,
+                      decoration: InputDecoration(
+                        labelText: 'Nome',
+                        prefixIcon: const Icon(Icons.person_outline, color: Color(0xFF7C4DFF)),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                        filled: true,
+                        fillColor: Colors.deepPurple.shade50,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: emailController,
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFF7C4DFF)),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                        filled: true,
+                        fillColor: Colors.deepPurple.shade50,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: senhaController,
+                      decoration: InputDecoration(
+                        labelText: 'Senha',
+                        prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF7C4DFF)),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                        filled: true,
+                        fillColor: Colors.deepPurple.shade50,
+                        suffixIcon: IconButton(
+                          icon: Icon(_senhaVisivel ? Icons.visibility : Icons.visibility_off),
+                          onPressed: () {
+                            setState(() {
+                              _senhaVisivel = !_senhaVisivel;
+                            });
+                          },
+                        ),
+                      ),
+                      obscureText: !_senhaVisivel,
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.save, color: Colors.white),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF7C4DFF),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: 4,
+                      ),
+                      onPressed: () async {
+                        if (userId == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Erro: usuário não encontrado'),
+                            ),
+                          );
+                          return;
+                        }
+                        final dbHelper = DatabaseHelper.instance;
+                        await dbHelper.updateUser(
+                          id: userId!,
+                          email: emailController.text,
+                          password: senhaController.text.isNotEmpty ? senhaController.text : null,
+                          nome: nomeController.text,
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Perfil atualizado!')),
+                        );
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setString('logged_user_email', emailController.text);
+                      },
+                      label: const Text('Salvar', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    ),
+                    const SizedBox(height: 18),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: _logout,
+                          icon: const Icon(Icons.exit_to_app, color: Colors.white),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          label: const Text('SAIR', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        ),
+                        const SizedBox(width: 16),
+                        ElevatedButton.icon(
+                          onPressed: _apagarConta,
+                          icon: const Icon(Icons.delete_forever, color: Colors.white),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          label: const Text('APAGAR CONTA', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              obscureText: !_senhaVisivel,
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                if (userId == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Erro: usuário não encontrado'),
-                    ),
-                  );
-                  return;
-                }
-                final dbHelper = DatabaseHelper.instance;
-                await dbHelper.updateUser(
-                  id: userId!,
-                  email: emailController.text,
-                  password: senhaController.text.isNotEmpty ? senhaController.text : null,
-                  nome: nomeController.text,
-                );
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Perfil atualizado!')),
-                );
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setString('logged_user_email', emailController.text);
-              },
-              child: const Text('Salvar'),
-            ),
-            const Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: _logout,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: const Text(
-                    'SAIR',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: _apagarConta,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: const Text(
-                    'APAGAR CONTA',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
