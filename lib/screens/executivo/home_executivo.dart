@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inovaeuro/data/app_repository.dart';
+import 'package:inovaeuro/current_user.dart';
 import 'chat_executivo.dart';
 import 'perfil_executivo.dart';
 import 'projetos_executivo.dart';
@@ -49,14 +50,12 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
   Future<void> _loadDashboard() async {
     try {
       final counts = await AppRepository.instance.countsDashboard();
-      if (counts != null) {
-        setState(() {
-          dashboardCounts['pendentes'] = counts['pending'] ?? 0;
-          dashboardCounts['aprovadas'] = counts['approved'] ?? 0;
-          dashboardCounts['em_andamento'] = counts['in_progress'] ?? 0;
-          dashboardCounts['finalizadas'] = counts['completed'] ?? 0;
-        });
-      }
+      setState(() {
+        dashboardCounts['pendentes'] = counts['pending'] ?? 0;
+        dashboardCounts['aprovadas'] = counts['approved'] ?? 0;
+        dashboardCounts['em_andamento'] = counts['in_progress'] ?? 0;
+        dashboardCounts['finalizadas'] = counts['completed'] ?? 0;
+      });
     } catch (e) {
       debugPrint("Erro ao carregar dashboard: $e");
       setState(() {
@@ -273,7 +272,14 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
             ExecutivoProjetos(onProjetoAprovadoOuRejeitado: _loadDashboard);
         break;
       case 2:
-        currentBody = const ChatExecutivo();
+          if (CurrentUser.instance.id == null) {
+            currentBody = const Center(child: CircularProgressIndicator());
+          } else {
+            currentBody = ChatExecutivo(
+              executivoId: CurrentUser.instance.id!,
+              executivoNome: CurrentUser.instance.email ?? '',
+            );
+          }
         break;
       case 3:
         currentBody = const PerfilExecutivo();

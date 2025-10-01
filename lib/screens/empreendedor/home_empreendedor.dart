@@ -107,7 +107,14 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
         );
         break;
       case 2:
-        currentBody = const ChatEmpreendedor();
+        if (CurrentUser.instance.id == null) {
+          currentBody = const Center(child: CircularProgressIndicator());
+        } else {
+          currentBody = ChatEmpreendedor(
+            empreendedorId: CurrentUser.instance.id!,
+            empreendedorNome: CurrentUser.instance.email ?? '',
+          );
+        }
         break;
       case 3:
         if (CurrentUser.instance.id == null) {

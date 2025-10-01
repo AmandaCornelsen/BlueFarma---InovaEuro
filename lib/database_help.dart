@@ -1,7 +1,15 @@
+
 import 'package:path/path.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class DatabaseHelper {
+  // ...existing code...
+
+  // Buscar todos os usuários cadastrados
+  Future<List<Map<String, dynamic>>> getAllUsers() async {
+    final db = await database;
+    return await db.query('users');
+  }
   // Singleton
   DatabaseHelper._init();
   static final DatabaseHelper instance = DatabaseHelper._init();
