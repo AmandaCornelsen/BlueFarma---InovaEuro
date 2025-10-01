@@ -24,7 +24,6 @@ class DatabaseHelper {
       orderBy: 'created_at DESC',
     );
   }
-  // ...existing code...
 
   // Buscar todos os usuários cadastrados
   Future<List<Map<String, dynamic>>> getAllUsers() async {

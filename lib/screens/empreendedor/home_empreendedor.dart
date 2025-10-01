@@ -55,7 +55,7 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
             const SizedBox(height: 8),
             Text('Tempo de conclusão: ${projeto['duration_days'] ?? ''} dias'),
             const SizedBox(height: 8),
-            Text('Status: ${_statusPt(projeto['status'])}'),
+             Text('Status: ${_statusPt(projeto['status'])}'),
             const SizedBox(height: 16),
             if (projeto['status'] == 'approved' || projeto['status'] == 'in_progress') ...[
               const Divider(),
@@ -108,14 +108,14 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
     switch (_selectedIndex) {
       case 0:
         currentBody = FutureBuilder<List<Map<String, dynamic>>>(
-          future: AppRepository.instance.ideiasDoUsuarioComStatus(['aprovado', 'em andamento', 'finalizado']),
+           future: AppRepository.instance.ideiasDoUsuarioComStatus(['approved', 'in_progress', 'completed']),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
             final projetos = snapshot.data ?? [];
             if (projetos.isEmpty) {
-              return const Center(child: Text('Nenhum projeto aprovado, em andamento ou finalizado ainda.'));
+              return const Center(child: Text('Nenhum projeto aprovado ainda.'));
             }
             return ListView.builder(
               itemCount: projetos.length,
@@ -180,6 +180,7 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
         );
         break;
       case 2:
+  currentBody = ChatEmpreendedor(empreendedorId: 0, empreendedorNome: '',);
         if (CurrentUser.instance.id == null) {
           currentBody = const Center(child: CircularProgressIndicator());
         } else {
@@ -203,13 +204,31 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
         currentBody = Container();
     }
 
+    String appBarTitle;
+    switch (_selectedIndex) {
+      case 0:
+        appBarTitle = 'Home Empreendedor';
+        break;
+      case 1:
+        appBarTitle = 'Ideias';
+        break;
+      case 2:
+        appBarTitle = 'Chat';
+        break;
+      case 3:
+        appBarTitle = 'Bonificação';
+        break;
+      case 4:
+        appBarTitle = 'Perfil';
+        break;
+      default:
+        appBarTitle = '';
+    }
     return Scaffold(
-      appBar: _selectedIndex == 0
-          ? AppBar(
-              title: const Text('Home Empreendedor'),
-              actions: [BonusStar(key: _bonusStarKey)],
-            )
-          : null,
+      appBar: AppBar(
+        title: Text(appBarTitle),
+        actions: _selectedIndex == 0 ? [BonusStar(key: _bonusStarKey)] : null,
+      ),
       body: SafeArea(child: currentBody),
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton(

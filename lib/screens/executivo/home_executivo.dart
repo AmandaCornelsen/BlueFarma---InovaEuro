@@ -131,8 +131,11 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
                         emoji: "🏁",
                         title: 'Finalizados',
                         count: dashboardCounts['finalizadas']!,
+                        
                       ),
+                      
                     ],
+                    
                   );
                 },
               ),
@@ -159,7 +162,13 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
                           subtitle: Text(
                               "Submetidos: ${e["submetidos"]}, Aprovados: ${e["aprovados"]}, Rejeitados: ${e["rejeitados"]}"),
                           trailing: const Icon(Icons.arrow_forward_ios),
-                          onTap: () {
+                          onTap: () async {
+                            final db = DatabaseHelper.instance;
+                            final projetosAprovados = await db.database.then((dbc) => dbc.query(
+                              'ideas',
+                              where: 'user_id = ? AND status = ?',
+                              whereArgs: [e['id'], 'approved'],
+                            ));
                             showDialog(
                               context: context,
                               builder: (context) => Dialog(
@@ -172,72 +181,91 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
                                     color: Colors.indigo.shade50,
                                     borderRadius: BorderRadius.circular(16),
                                   ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          CircleAvatar(
-                                            backgroundColor: Colors.indigo,
-                                            child: Text(
-                                              e["nome"][0],
-                                              style: const TextStyle(
-                                                  color: Colors.white),
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            CircleAvatar(
+                                              backgroundColor: Colors.indigo,
+                                              child: Text(
+                                                e["nome"][0],
+                                                style: const TextStyle(
+                                                    color: Colors.white),
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Text(
-                                            e["nome"],
-                                            style: const TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                      const Divider(height: 20, thickness: 1),
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.pending,
-                                              color: Colors.orange),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                              "Submetidos: ${e["submetidos"]}"),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.check_circle,
-                                              color: Colors.green),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                              "Aprovados: ${e["aprovados"]}"),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.cancel,
-                                              color: Colors.red),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                              "Rejeitados: ${e["rejeitados"]}"),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Center(
-                                        child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  const Color.fromARGB(255, 174, 181, 220)),
-                                          onPressed: () =>
-                                              Navigator.of(context).pop(),
-                                          child: const Text("Fechar"),
+                                            const SizedBox(width: 12),
+                                            Text(
+                                              e["nome"],
+                                              style: const TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                    ],
+                                        const Divider(height: 20, thickness: 1),
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.pending,
+                                                color: Colors.orange),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                                "Submetidos: ${e["submetidos"]}"),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.check_circle,
+                                                color: Colors.green),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                                "Aprovados: ${e["aprovados"]}"),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.cancel,
+                                                color: Colors.red),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                                "Rejeitados: ${e["rejeitados"]}"),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 12),
+                                        const Text(
+                                          "Projetos aprovados:",
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.indigo),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        if (projetosAprovados.isEmpty)
+                                          const Text("Nenhum projeto aprovado."),
+                                        ...projetosAprovados.map((p) => Card(
+                                              margin: const EdgeInsets.symmetric(vertical: 4),
+                                              child: ListTile(
+                                                title: Text((p['title'] ?? 'Projeto').toString()),
+                                                subtitle: Text((p['description'] ?? '').toString()),
+                                              ),
+                                            )),
+                                        const SizedBox(height: 12),
+                                        Center(
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    const Color.fromARGB(255, 174, 181, 220)),
+                                            onPressed: () => Navigator.of(context).pop(),
+                                            child: const Text("Fechar"),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -278,7 +306,12 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
         currentBody = Container();
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('Home Executivo')),
+      appBar: _selectedIndex == 0
+          ? AppBar(
+              title: const Text('Home Executivo'),
+              backgroundColor: const Color(0xFF7C4DFF),
+            )
+          : null,
       body: SafeArea(child: currentBody),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,

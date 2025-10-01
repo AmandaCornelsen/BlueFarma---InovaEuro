@@ -132,25 +132,6 @@ class _ChatEmpreendedorState extends State<ChatEmpreendedor> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chats'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text('Nova conversa', style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7C4DFF),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 6,
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-              ),
-              onPressed: _novaConversa,
-            ),
-          ),
-        ],
-      ),
       body: carregando
           ? const Center(child: CircularProgressIndicator())
           : conversas.isEmpty
@@ -248,19 +229,6 @@ class _TelaConversaState extends State<TelaConversa> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: Colors.deepPurple.shade100,
-              child: Text(widget.nomeContato.isNotEmpty ? widget.nomeContato[0] : 'E'),
-            ),
-            const SizedBox(width: 12),
-            Text(widget.nomeContato, style: const TextStyle(fontWeight: FontWeight.bold)),
-          ],
-        ),
-        backgroundColor: const Color(0xFF7C4DFF),
-      ),
       body: carregando
           ? const Center(child: CircularProgressIndicator())
           : Container(

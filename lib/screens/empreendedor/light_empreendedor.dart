@@ -63,7 +63,6 @@ class LightEmpreendedorState extends State<LightEmpreendedor> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Empreendedorismo')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(

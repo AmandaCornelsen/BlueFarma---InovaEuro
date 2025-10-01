@@ -64,7 +64,10 @@ class _ExecutivoProjetosState extends State<ExecutivoProjetos> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Projetos')),
+      appBar: AppBar(
+        title: const Text('Projetos Executivo'),
+        backgroundColor: const Color(0xFF7C4DFF),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(

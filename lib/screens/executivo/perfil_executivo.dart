@@ -76,7 +76,10 @@ class _PerfilExecutivoState extends State<PerfilExecutivo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Perfil')),
+      appBar: AppBar(
+        title: const Text('Perfil Executivo'),
+        backgroundColor: const Color(0xFF7C4DFF),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

@@ -48,7 +48,6 @@ class _BonusEmpreendedorState extends State<BonusEmpreendedor> {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Dashboard de Bonificação')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
