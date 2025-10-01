@@ -64,33 +64,39 @@ class _ChatEmpreendedorState extends State<ChatEmpreendedor> {
     final executivos = await db.getExecutives();
     showDialog(
       context: context,
+      barrierColor: Colors.black.withOpacity(0.3),
       builder: (ctx) {
         return Center(
           child: Material(
             color: Colors.transparent,
             child: Container(
-              width: MediaQuery.of(context).size.width * 0.85,
+              width: 400,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
+                gradient: LinearGradient(
+                  colors: [Color(0xFFB388FF), Color(0xFF7C4DFF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
                 borderRadius: BorderRadius.circular(24),
-                boxShadow: [BoxShadow(color: Colors.deepPurple.withOpacity(0.15), blurRadius: 16)],
+                boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 16)],
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Selecione um executivo', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF7C4DFF))),
+                  Text('Selecione um executivo', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
                   const SizedBox(height: 16),
                   ...executivos.map((e) => Card(
-                    elevation: 3,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 4,
+                    color: Colors.white.withOpacity(0.9),
                     child: ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: Colors.deepPurple.shade100,
-                        child: Text((e['nome'] ?? 'E')[0]),
+                        backgroundColor: Color(0xFFB388FF),
+                        child: Text((e['nome'] ?? 'E')[0], style: TextStyle(color: Color(0xFF7C4DFF))),
                       ),
-                      title: Text(e['nome'] ?? 'Executivo', style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(e['email'] ?? '', style: const TextStyle(color: Colors.deepPurple)),
+                      title: Text(e['nome'] ?? 'Executivo', style: TextStyle(color: Color(0xFF7C4DFF), fontWeight: FontWeight.bold)),
+                      subtitle: Text(e['email'] ?? '', style: TextStyle(color: Colors.black54)),
                       trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xFF7C4DFF)),
                       onTap: () async {
                         Navigator.pop(ctx);
@@ -106,7 +112,7 @@ class _ChatEmpreendedorState extends State<ChatEmpreendedor> {
                   const SizedBox(height: 12),
                   TextButton(
                     onPressed: () => Navigator.pop(ctx),
-                    child: const Text('Cancelar', style: TextStyle(color: Color(0xFF7C4DFF), fontWeight: FontWeight.bold)),
+                    child: const Text('Cancelar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -131,43 +137,71 @@ class _ChatEmpreendedorState extends State<ChatEmpreendedor> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: carregando
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFE1BEE7), Color(0xFF7C4DFF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: carregando
           ? const Center(child: CircularProgressIndicator())
-          : conversas.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 16, right: 16, left: 16, bottom: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Icon(Icons.chat_bubble_outline, size: 64, color: Colors.deepPurple.shade200),
-                      const SizedBox(height: 16),
-                      const Text('Nenhuma conversa ativa', style: TextStyle(fontSize: 18, color: Color(0xFF7C4DFF))),
+                      Text('Chats', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF7C4DFF))),
+                      IconButton(
+                        icon: const Icon(Icons.add, color: Colors.white),
+                        onPressed: _novaConversa,
+                        tooltip: 'Nova conversa',
+                      ),
                     ],
                   ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                  itemCount: conversas.length,
-                  itemBuilder: (ctx, idx) {
-                    final c = conversas[idx];
-                    final ultimaMsg = c.mensagens.isNotEmpty ? c.mensagens.last.texto : '';
-                    return Card(
-                      elevation: 4,
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.deepPurple.shade100,
-                          child: Text(c.usuario2Nome.isNotEmpty ? c.usuario2Nome[0] : 'E'),
-                        ),
-                        title: Text(c.usuario2Nome, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text(ultimaMsg, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xFF7C4DFF))),
-                        trailing: c.novaMensagem ? const Icon(Icons.mark_chat_unread, color: Colors.red) : null,
-                        onTap: () => _abrirChat(c.id, c.usuario2Nome, c.usuario2Id),
-                      ),
-                    );
-                  },
                 ),
+                Expanded(
+                  child: conversas.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.chat_bubble_outline, size: 64, color: Color(0xFFB388FF)),
+                              const SizedBox(height: 16),
+                              const Text('Nenhuma conversa ativa', style: TextStyle(fontSize: 18, color: Color(0xFF7C4DFF), fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: conversas.length,
+                          itemBuilder: (ctx, idx) {
+                            final c = conversas[idx];
+                            final ultimaMsg = c.mensagens.isNotEmpty ? c.mensagens.last.texto : '';
+                            return Card(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              elevation: 6,
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                              color: Colors.white.withOpacity(0.95),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: Color(0xFFB388FF),
+                                  child: Text(c.usuario2Nome.isNotEmpty ? c.usuario2Nome[0] : 'E', style: TextStyle(color: Color(0xFF7C4DFF))),
+                                ),
+                                title: Text(c.usuario2Nome, style: TextStyle(color: Color(0xFF7C4DFF), fontWeight: FontWeight.bold)),
+                                subtitle: Text(ultimaMsg, style: TextStyle(color: Colors.black87)),
+                                trailing: c.novaMensagem ? const Icon(Icons.mark_chat_unread, color: Colors.red) : null,
+                                onTap: () => _abrirChat(c.id, c.usuario2Nome, c.usuario2Id),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
     );
   }
 }
@@ -228,65 +262,57 @@ class _TelaConversaState extends State<TelaConversa> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: carregando
-          ? const Center(child: CircularProgressIndicator())
-          : Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFF6F2FF), Color(0xFFEDE7F6)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Column(
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFE1BEE7), Color(0xFF7C4DFF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: Text(widget.nomeContato),
+          backgroundColor: Color(0xFF7C4DFF),
+          elevation: 6,
+        ),
+        body: carregando
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
                 children: [
                   Expanded(
                     child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                      padding: const EdgeInsets.all(16),
                       itemCount: mensagens.length,
                       itemBuilder: (ctx, idx) {
                         final m = mensagens[idx];
                         final souEu = m.remetenteId == widget.meuId;
-                        return Row(
-                          mainAxisAlignment: souEu ? MainAxisAlignment.end : MainAxisAlignment.start,
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
-                              decoration: BoxDecoration(
-                                color: souEu ? const Color(0xFF7C4DFF) : Colors.white,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: const Radius.circular(18),
-                                  topRight: const Radius.circular(18),
-                                  bottomLeft: Radius.circular(souEu ? 18 : 4),
-                                  bottomRight: Radius.circular(souEu ? 4 : 18),
-                                ),
-                                boxShadow: [BoxShadow(color: Colors.deepPurple.withOpacity(0.08), blurRadius: 6)],
-                              ),
-                              child: Text(
-                                m.texto,
-                                style: TextStyle(
-                                  color: souEu ? Colors.white : const Color(0xFF7C4DFF),
-                                  fontSize: 16,
-                                ),
-                              ),
+                        return Align(
+                          alignment: souEu ? Alignment.centerRight : Alignment.centerLeft,
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: souEu ? Color(0xFFD1C4E9) : Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6)],
                             ),
-                          ],
+                            child: Text(m.texto, style: TextStyle(color: Color(0xFF4A148C))),
+                          ),
                         );
                       },
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [BoxShadow(color: Colors.deepPurple.withOpacity(0.07), blurRadius: 8)],
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(18),
-                        topRight: Radius.circular(18),
-                      ),
+                      color: Color(0xFFB388FF).withOpacity(0.7),
+                      boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
                     ),
                     child: Row(
                       children: [
@@ -294,34 +320,28 @@ class _TelaConversaState extends State<TelaConversa> {
                           child: TextField(
                             controller: _controller,
                             decoration: InputDecoration(
-                              hintText: 'Digite sua mensagem...',
+                              hintText: 'Digite sua mensagem',
                               filled: true,
-                              fillColor: const Color(0xFFF6F2FF),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              fillColor: Colors.white,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(16),
                                 borderSide: BorderSide.none,
                               ),
                             ),
                           ),
                         ),
                         const SizedBox(width: 8),
-                        ElevatedButton(
+                        IconButton(
+                          icon: Icon(Icons.send, color: Color(0xFF7C4DFF)),
                           onPressed: _enviarMensagem,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF7C4DFF),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                            elevation: 4,
-                          ),
-                          child: const Icon(Icons.send, color: Colors.white),
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-            ),
+      ),
     );
   }
 }
