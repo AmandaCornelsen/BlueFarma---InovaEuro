@@ -6,6 +6,9 @@ import 'package:inovaeuro/current_user.dart';
 
 
 class AppRepository {
+  Future<void> apagarProjeto(int ideiaId) async {
+    await _db.apagarProjeto(ideiaId);
+  }
   Future<List<Map<String, dynamic>>> ideiasDoUsuarioComStatus(List<String> statusList) async {
     final userId = CurrentUser.instance.id;
     if (userId == null) throw Exception("Usuário não logado");

@@ -126,7 +126,40 @@ class _EmpreendedorScreenState extends State<EmpreendedorScreen> {
                   child: ListTile(
                     title: Text(projeto['title'] ?? ''),
                     subtitle: Text('Categoria: ${projeto['category'] ?? ''}'),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          tooltip: 'Apagar projeto',
+                          onPressed: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Confirmar exclusão'),
+                                content: const Text('Deseja realmente apagar este projeto? Esta ação não pode ser desfeita.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(false),
+                                    child: const Text('Cancelar'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(true),
+                                    child: const Text('Apagar', style: TextStyle(color: Colors.red)),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirm == true) {
+                              await AppRepository.instance.apagarProjeto(projeto['id']);
+                              setState(() {});
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Projeto apagado com sucesso.')));
+                            }
+                          },
+                        ),
+                        const Icon(Icons.arrow_forward_ios, size: 16),
+                      ],
+                    ),
                     onTap: () => _abrirDetalhesProjeto(projeto),
                   ),
                 );

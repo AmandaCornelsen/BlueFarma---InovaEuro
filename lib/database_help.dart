@@ -3,6 +3,10 @@ import 'package:path/path.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class DatabaseHelper {
+  Future<void> apagarProjeto(int ideiaId) async {
+    final db = await database;
+    await db.delete('ideas', where: 'id = ?', whereArgs: [ideiaId]);
+  }
   Future<List<Map<String, dynamic>>> getIdeasByStatuses(List<String> statuses) async {
     final db = await database;
     final placeholders = List.filled(statuses.length, '?').join(',');
