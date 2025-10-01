@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inovaeuro/data/app_repository.dart';
 import 'package:inovaeuro/database_help.dart';
-import 'package:inovaeuro/current_user.dart';
-import 'chat_executivo.dart';
-import 'perfil_executivo.dart';
-import 'projetos_executivo.dart';
 
 class ExecutivoScreen extends StatefulWidget {
   const ExecutivoScreen({super.key});
@@ -14,6 +10,27 @@ class ExecutivoScreen extends StatefulWidget {
 }
 
 class _ExecutivoScreenState extends State<ExecutivoScreen> {
+  Widget _buildDashboardCard(String emoji, String label, int value, Color color, double width) {
+    return Card(
+      color: color,
+      elevation: 8,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: SizedBox(
+        width: width,
+        height: 90,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(emoji, style: const TextStyle(fontSize: 28)),
+              Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              Text('$value', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
   int _selectedIndex = 0;
 
   Map<String, int> dashboardCounts = {
@@ -47,9 +64,6 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
     });
   }
 
-  void _onNavItemTapped(int index) {
-    setState(() => _selectedIndex = index);
-  }
 
   Future<void> _loadDashboard() async {
     try {
@@ -82,19 +96,17 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Widget currentBody;
-
-    switch (_selectedIndex) {
-      case 0:
-        currentBody = Stack(
+    return Scaffold(
+      appBar: AppBar(title: const Text('Home Executivo')),
+      body: SafeArea(
+        child: Stack(
           children: [
-            // Fundo neutro
             Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.white, Color(0xFFF5F5F5)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+                  colors: [Color(0xFF8E24AA), Color(0xFFCE93D8)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
               ),
             ),
@@ -103,12 +115,25 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
+                  const SizedBox(height: 8),
+                  Text(
                     'Painel Executivo',
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Colors.indigo,
+                      foreground: Paint()
+                        ..shader = const LinearGradient(
+                          colors: [Color(0xFFE1BEE7), Color(0xFF8E24AA), Color(0xFFBA68C8)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ).createShader(Rect.fromLTWH(0, 0, 300, 100)),
+                      shadows: [
+                        Shadow(
+                          color: Color(0xFFBA68C8).withOpacity(0.7),
+                          blurRadius: 16,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -119,182 +144,105 @@ class _ExecutivoScreenState extends State<ExecutivoScreen> {
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Card(
-                            color: Colors.redAccent,
-                            child: InkWell(
-                              onTap: () => _onNavItemTapped(1),
-                              child: SizedBox(
-                                width: cardWidth,
-                                height: 80,
-                                child: Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text('🕒', style: TextStyle(fontSize: 24)),
-                                      Text('Pendentes', style: TextStyle(color: Colors.white)),
-                                      Text('${dashboardCounts['pendentes']}', style: TextStyle(color: Colors.white)),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Card(
-                            color: Colors.green,
-                            child: SizedBox(
-                              width: cardWidth,
-                              height: 80,
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text('✅', style: TextStyle(fontSize: 24)),
-                                    Text('Aprovados', style: TextStyle(color: Colors.white)),
-                                    Text('${dashboardCounts['aprovadas']}', style: TextStyle(color: Colors.white)),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          Card(
-                            color: Colors.blueAccent,
-                            child: SizedBox(
-                              width: cardWidth,
-                              height: 80,
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text('🚀', style: TextStyle(fontSize: 24)),
-                                    Text('Em Andamento', style: TextStyle(color: Colors.white)),
-                                    Text('${dashboardCounts['em_andamento']}', style: TextStyle(color: Colors.white)),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          Card(
-                            color: Colors.purpleAccent,
-                            child: SizedBox(
-                              width: cardWidth,
-                              height: 80,
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text('🏁', style: TextStyle(fontSize: 24)),
-                                    Text('Finalizados', style: TextStyle(color: Colors.white)),
-                                    Text('${dashboardCounts['finalizadas']}', style: TextStyle(color: Colors.white)),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+                          _buildDashboardCard('🕒', 'Pendentes', dashboardCounts['pendentes'] ?? 0, Color(0xFF8E24AA), cardWidth),
+                          _buildDashboardCard('✅', 'Aprovados', dashboardCounts['aprovadas'] ?? 0, Color(0xFFBA68C8), cardWidth),
+                          _buildDashboardCard('🚀', 'Em Andamento', dashboardCounts['em_andamento'] ?? 0, Color(0xFFCE93D8), cardWidth),
+                          _buildDashboardCard('🏁', 'Finalizados', dashboardCounts['finalizadas'] ?? 0, Color(0xFF6A1B9A), cardWidth),
                         ],
                       );
                     },
                   ),
-                  ...empreendedores.map((e) => ListTile(
-                    title: Text(e["nome"] ?? ''),
-                    subtitle: Text("Submetidos: ${e["submetidos"]}, Aprovados: ${e["aprovados"]}, Rejeitados: ${e["rejeitados"]}"),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: () async {
-                      final db = DatabaseHelper.instance;
-                      final projetos = await db.database.then((dbc) => dbc.query('ideas', where: 'user_id = ?', whereArgs: [e['id']]));
-                      await showDialog(
-                        context: context,
-                        builder: (context) => Dialog(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: Colors.indigo.shade50,
+                  ...empreendedores.map((e) => Container(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.85),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 12,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: ListTile(
+                      title: Text(e["nome"] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text("Submetidos:  ${e["submetidos"]}, Aprovados: ${e["aprovados"]}, Rejeitados: ${e["rejeitados"]}"),
+                      trailing: const Icon(Icons.arrow_forward_ios, color: Color(0xFF8E24AA)),
+                      onTap: () async {
+                        final db = DatabaseHelper.instance;
+                        final projetos = await db.database.then((dbc) => dbc.query('ideas', where: 'user_id = ?', whereArgs: [e['id']]));
+                        await showDialog(
+                          context: context,
+                          builder: (context) => Dialog(
+                            shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    CircleAvatar(
-                                      backgroundColor: Colors.indigo,
-                                      child: Text((e["nome"] ?? '')[0], style: const TextStyle(color: Colors.white)),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(e["nome"] ?? '', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                                  ],
+                            child: Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF8E24AA), Color(0xFFCE93D8)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
-                                const Divider(height: 20, thickness: 1),
-                                ...projetos.map((p) => Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 4),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
                                     children: [
-                                      Text('Título: ${p['title'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                                      Text('Status: ${p['status'] ?? ''}'),
+                                      CircleAvatar(
+                                        backgroundColor: Color(0xFF8E24AA),
+                                        child: Text((e["nome"] ?? '')[0], style: const TextStyle(color: Colors.white)),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(e["nome"] ?? '', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
                                     ],
                                   ),
-                                )),
-                                const SizedBox(height: 12),
-                                Center(
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color.fromARGB(255, 174, 181, 220)),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                      _loadEmpreendedores();
-                                      _loadDashboard();
-                                    },
-                                    child: const Text("Fechar"),
+                                  const Divider(height: 20, thickness: 1, color: Colors.white),
+                                  ...projetos.map((p) => Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 4),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Título: ${p['title'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                                        Text('Status: ${p['status'] ?? ''}', style: const TextStyle(color: Colors.white)),
+                                      ],
+                                    ),
+                                  )),
+                                  const SizedBox(height: 12),
+                                  Center(
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor: Color(0xFFBA68C8)),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        _loadEmpreendedores();
+                                        _loadDashboard();
+                                      },
+                                      child: const Text("Fechar", style: TextStyle(color: Colors.white)),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   )).toList(),
                 ],
               ),
             ),
           ],
-        );
-        break;
-      case 1:
-        currentBody = ExecutivoProjetos(
-          onProjetoAprovadoOuRejeitado: () {
-            _loadDashboard();
-            _loadEmpreendedores();
-          },
-        );
-        break;
-      case 2:
-          if (CurrentUser.instance.id == null) {
-            currentBody = const Center(child: CircularProgressIndicator());
-          } else {
-            currentBody = ChatExecutivo(
-              executivoId: CurrentUser.instance.id!,
-              executivoNome: CurrentUser.instance.email ?? '',
-            );
-          }
-        break;
-      case 3:
-        currentBody = const PerfilExecutivo();
-        break;
-      default:
-        currentBody = Container();
-    }
-
-    return Scaffold(
-      appBar: _selectedIndex == 0 ? AppBar(title: const Text('Home Executivo')) : null,
-      body: SafeArea(child: currentBody),
+        ),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
-        onTap: _onNavItemTapped,
+        onTap: (index) => setState(() => _selectedIndex = index),
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.indigo,
         unselectedItemColor: Colors.grey,

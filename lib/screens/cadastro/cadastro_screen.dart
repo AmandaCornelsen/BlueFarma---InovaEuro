@@ -87,107 +87,196 @@ class _CadastroScreenState extends State<CadastroScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Cadastro InovaEuro'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pushReplacementNamed(context, Routes.login),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF8E24AA), Color(0xFFCE93D8)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
         ),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const SizedBox(height: 32),
-                const Text(
-                  'Cadastro',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: nomeController,
-                  decoration: InputDecoration(
-                    hintText: 'Nome de usuário',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    hintText: 'email@domain.com',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: 'Senha',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  value: selectedRole,
-                  hint: const Text('Selecione seu perfil'),
-                  items: roles.map((role) {
-                    return DropdownMenuItem(value: role, child: Text(role));
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedRole = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                // Só aparece se for executivo
-                if (selectedRole == "Executivo")
-                  TextField(
-                    controller: codigoExecutivoController,
-                    decoration: InputDecoration(
-                      hintText: 'Código Executivo',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 32),
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Text(
+                        'InovaEuro',
+                        style: TextStyle(
+                          fontSize: 54,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 2,
+                          foreground: Paint()
+                            ..shader = const LinearGradient(
+                              colors: [Color(0xFFE1BEE7), Color(0xFF8E24AA), Color(0xFFBA68C8)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ).createShader(Rect.fromLTWH(0, 0, 320, 110)),
+                          shadows: [
+                            Shadow(
+                              color: Color(0xFFBA68C8).withOpacity(0.7),
+                              blurRadius: 32,
+                              offset: Offset(0, 0),
+                            ),
+                            Shadow(
+                              color: Colors.black38,
+                              blurRadius: 16,
+                              offset: Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                  ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _registerUser,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                      Text(
+                        'InovaEuro',
+                        style: TextStyle(
+                          fontSize: 54,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 2,
+                          foreground: Paint()..color = Colors.white,
+                          shadows: [
+                            Shadow(
+                              color: Colors.white,
+                              blurRadius: 2,
+                              offset: Offset(0, 0),
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                    child: const Text('Cadastrar'),
+                    ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 32),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.85),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 16,
+                          offset: Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        TextField(
+                          controller: nomeController,
+                          decoration: InputDecoration(
+                            labelText: 'Nome de usuário',
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            prefixIcon: Icon(Icons.person, color: Colors.blue[700]),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: InputDecoration(
+                            labelText: 'Email',
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            prefixIcon: Icon(Icons.email, color: Colors.blue[700]),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: passwordController,
+                          obscureText: true,
+                          decoration: InputDecoration(
+                            labelText: 'Senha',
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            prefixIcon: Icon(Icons.lock, color: Colors.blue[700]),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        DropdownButtonFormField<String>(
+                          value: selectedRole,
+                          hint: const Text('Selecione seu perfil'),
+                          items: roles.map((role) {
+                            return DropdownMenuItem(value: role, child: Text(role));
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedRole = value;
+                            });
+                          },
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        if (selectedRole == "Executivo")
+                          TextField(
+                            controller: codigoExecutivoController,
+                            decoration: InputDecoration(
+                              labelText: 'Código Executivo',
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              prefixIcon: Icon(Icons.verified, color: Colors.blue[700]),
+                            ),
+                          ),
+                        const SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: _registerUser,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF8E24AA),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 6,
+                            shadowColor: Color(0xFFBA68C8),
+                          ),
+                          child: const Text('Cadastrar', style: TextStyle(fontSize: 18)),
+                        ),
+                        const SizedBox(height: 16),
+                        OutlinedButton(
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(context, Routes.login);
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            side: const BorderSide(color: Color(0xFF8E24AA), width: 2),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text('Voltar ao Login', style: TextStyle(fontSize: 18, color: Color(0xFF8E24AA))),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
             ),
           ),
         ),
